@@ -23,3 +23,19 @@ tmp/*
 GLAZE-APP-GUIDE.md
 GLAZE-AGENT-INSTRUCTIONS.md
 .glaze-runtime-context.md
+
+# Local agent tooling (machine-specific links and instructions)
+.claude/
+.agents/
+.glaze-tool-output/
+/.mcp.json
+/CLAUDE.md
+/AGENTS.md
+
+# Environment files and secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
