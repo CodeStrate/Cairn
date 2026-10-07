@@ -1,20 +1,126 @@
 import { useState, useEffect } from "react";
 import {
+  Button,
   Label,
   RadioGroup,
   RadioGroupItem,
   ScrollArea,
+  Switch,
   Toolbar,
   ToolbarContent,
   ToolbarTitle,
   Field,
   FieldContent,
+  FieldDescription,
   FieldGroup,
   FieldLabel,
+  FieldLegend,
   FieldSet,
   toast,
 } from "@glaze/core/components";
 import type { NativeThemeInfo } from "@glaze/core/ipc";
+
+import type { HarnessInfo } from "@main/shared/types";
+
+import { errorMessage } from "../components/detail/detail-parts";
+import { plural, shortenPath } from "../lib/format";
+import { HARNESS_ORDER } from "../lib/harness";
+import {
+  useLibrary,
+  useLibraryUpdates,
+  useSetHarnessEnabled,
+  useSetProjectHidden,
+} from "../lib/library-api";
+
+function harnessDescription(harness: HarnessInfo): string {
+  if (!harness.enabled) return harness.available ? "Found on this Mac" : "Not found on this Mac";
+  return `${plural(harness.sessionCount, "session")} · ${harness.memoryCount} ${
+    harness.memoryCount === 1 ? "memory" : "memories"
+  }`;
+}
+
+function LibrarySettings() {
+  const library = useLibrary();
+  const setHarnessEnabled = useSetHarnessEnabled();
+  const setProjectHidden = useSetProjectHidden();
+  useLibraryUpdates();
+
+  const harnesses = HARNESS_ORDER.map((id) =>
+    library.data?.harnesses.find((harness) => harness.id === id),
+  ).filter((harness): harness is HarnessInfo => harness !== undefined);
+  const enabledCount = harnesses.filter((harness) => harness.enabled).length;
+  const hiddenProjects = library.data?.hiddenProjects ?? [];
+
+  return (
+    <>
+      <FieldSet>
+        <FieldLegend>Harnesses</FieldLegend>
+        <FieldDescription>
+          Only added harnesses are scanned and shown in the library.
+        </FieldDescription>
+        <FieldGroup>
+          {harnesses.map((harness) => (
+            <Field key={harness.id} orientation="horizontal">
+              <FieldContent>
+                <FieldLabel htmlFor={`harness-${harness.id}`}>{harness.name}</FieldLabel>
+                <FieldDescription>{harnessDescription(harness)}</FieldDescription>
+              </FieldContent>
+              <Switch
+                id={`harness-${harness.id}`}
+                checked={harness.enabled}
+                disabled={(harness.enabled && enabledCount <= 1) || setHarnessEnabled.isPending}
+                onCheckedChange={(enabled) =>
+                  setHarnessEnabled.mutate(
+                    { id: harness.id, enabled },
+                    {
+                      onError: (error) =>
+                        toast.error(`Couldn't update ${harness.name}: ${errorMessage(error)}`),
+                    },
+                  )
+                }
+              />
+            </Field>
+          ))}
+        </FieldGroup>
+      </FieldSet>
+
+      {hiddenProjects.length > 0 ? (
+        <FieldSet>
+          <FieldLegend>Hidden Projects</FieldLegend>
+          <FieldDescription>
+            Projects you removed from the library. Their files were not changed.
+          </FieldDescription>
+          <FieldGroup>
+            {hiddenProjects.map((project) => (
+              <Field key={project.path} orientation="horizontal">
+                <FieldContent>
+                  <FieldLabel>{project.name}</FieldLabel>
+                  <FieldDescription>
+                    {shortenPath(project.path, library.data?.home ?? "")}
+                  </FieldDescription>
+                </FieldContent>
+                <Button
+                  size="small"
+                  onClick={() =>
+                    setProjectHidden.mutate(
+                      { path: project.path, hidden: false },
+                      {
+                        onError: (error) =>
+                          toast.error(`Couldn't restore ${project.name}: ${errorMessage(error)}`),
+                      },
+                    )
+                  }
+                >
+                  Show in Library
+                </Button>
+              </Field>
+            ))}
+          </FieldGroup>
+        </FieldSet>
+      ) : null}
+    </>
+  );
+}
 
 export function SettingsView() {
   const [themeInfo, setThemeInfo] = useState<NativeThemeInfo | null>(null);
@@ -85,6 +191,7 @@ export function SettingsView() {
     >
       <div className="px-4 flex flex-col gap-8 mb-8">
         <FieldSet>
+          <FieldLegend>Appearance</FieldLegend>
           <FieldGroup>
             <Field orientation="horizontal">
               <FieldContent>
@@ -111,6 +218,8 @@ export function SettingsView() {
             </Field>
           </FieldGroup>
         </FieldSet>
+
+        <LibrarySettings />
       </div>
     </ScrollArea>
   );
