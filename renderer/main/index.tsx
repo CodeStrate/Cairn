@@ -7,11 +7,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { TooltipProvider, Toaster } from "@glaze/core/components";
 import { initLogging } from "@glaze/core/utils";
 
-declare const __APP_DISPLAY_NAME__: string | undefined;
-
 initLogging();
-
-document.title = __APP_DISPLAY_NAME__ || document.title;
 
 // Get the root element
 const rootElement = document.getElementById("root");

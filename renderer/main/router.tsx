@@ -8,6 +8,7 @@ import { HomeView } from "./home-view";
 import { RootView } from "./root-view";
 import { QueryClient } from "@tanstack/react-query";
 import { ErrorBoundaryView } from "@glaze/core/components";
+import { validateHomeSearch } from "../lib/search";
 
 const rootRoute = createRootRouteWithContext<{
   queryClient: QueryClient;
@@ -28,8 +29,9 @@ const homeRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/",
   component: HomeView,
+  validateSearch: validateHomeSearch,
   staticData: {
-    title: "Home",
+    title: "Cairn",
   },
 });
 
@@ -53,7 +55,6 @@ declare module "@tanstack/react-router" {
   }
   interface StaticDataRouteOption {
     title?: string;
-    component?: any;
   }
 }
 
