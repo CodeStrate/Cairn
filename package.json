@@ -1,8 +1,8 @@
 {
   "id": "2kx8bm18",
-  "name": "context-bridge",
+  "name": "cairn",
   "version": "1.0.0",
-  "productName": "Context Bridge",
+  "productName": "Cairn",
   "description": "Unify all agent sessions and memories",
   "iconDescription": "A universal workspace that consolidates chat histories, memories, and contexts from multiple AI agents and platforms into one searchable interface. Users can visualize connections between sessions like a knowledge graph, drag-and-drop memories between conversations, and continue work across different AI harnesses seamlessly. Think of an interconnected web of threads, a bridge connecting islands, or overlapping conversation bubbles linking together.",
   "private": true,
@@ -26,6 +26,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
+    "d3-force": "^3.0.0",
     "lucide-react": "^0.542.0",
     "radix-ui": "^1.4.3",
     "react": "^19.1.1",
@@ -36,6 +37,7 @@
     "@eslint/js": "^9.22.0",
     "@rolldown/plugin-babel": "^0.2.1",
     "@tailwindcss/vite": "^4.2.2",
+    "@types/d3-force": "^3.0.10",
     "@types/node": "^24.3.1",
     "@types/react": "^19.1.12",
     "@types/react-dom": "^19.1.9",
@@ -66,6 +68,7 @@
     "lastMigration": "sdk-projection-paths",
     "host": {
       "minVersion": "0.14.3.0"
-    }
+    },
+    "updatedAt": 1791405454878
   }
 }
