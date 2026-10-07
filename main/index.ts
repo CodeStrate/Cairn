@@ -1,12 +1,5 @@
-// Main process entry point - Node.js backend for Glaze app
-//
-// The glaze CLI runtime automatically handles all framework wiring (IPC server,
-// native bridge, lifecycle, signal handlers) before this file runs.
-// This entry point uses only APIs.
-
-import * as fs from "fs";
-import * as path from "path";
-import { fileURLToPath } from "url";
+// Cairn backend entry point. The runtime wires IPC, the native bridge, and lifecycle
+// handling before this file runs.
 
 import { app, BrowserWindow, Menu, logger, initDevToolsButtonState } from "@glaze/core/backend";
 
@@ -14,133 +7,37 @@ import { registerHandlers } from "./handlers/index.js";
 import { getPreloadPath, getWindowUrl } from "./windows/window-paths.js";
 import { openSettingsWindow } from "./windows/settings-window.js";
 
-// Get directory paths
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const APP_NAME = "Cairn";
 
-// ── IPC Handlers ──────────────────────────────────────────────────────
-// ipcMain is already wired to the IPC server by the runtime bootstrap.
 registerHandlers();
 
-// ── Dev-only parity harness ───────────────────────────────────────────
-// The parity autotest lives in main/dev/, which is excluded from scaffolded
-// apps. The build (build-backend) defines GLAZE_DEV_HARNESS="1" only when that
-// directory is present, so esbuild dead-code-eliminates this block — and never
-// resolves the missing module — for user apps. A no-op unless a scenario env var
-// is set even in the template.
-type DevHarness = {
-  applyParityScenarioStartup(): void;
-  runParityAutotestIfRequested(): Promise<void>;
-};
-type AppAiDevHarness = {
-  runAppAiAutotest(): Promise<void>;
-};
-let devHarness: DevHarness | null = null;
-let appAiDevHarness: AppAiDevHarness | null = null;
-if (process.env.GLAZE_DEV_HARNESS === "1") {
-  // @ts-ignore dev-only harness; present only in the template, excluded from scaffolded apps
-  devHarness = (await import("./dev/parity-autotest.js")) as DevHarness;
-  devHarness.applyParityScenarioStartup();
-  // @ts-ignore dev-only harness; present only in the template, excluded from scaffolded apps
-  appAiDevHarness = (await import("./dev/app-ai-autotest.js")) as AppAiDevHarness;
-}
-
-// ── State ─────────────────────────────────────────────────────────────
 let mainWindow: BrowserWindow | null = null;
 
-// ── Window creation ───────────────────────────────────────────────────
 async function createMainWindow() {
-  if (mainWindow && !mainWindow.isDestroyed()) {
-    logger.debug("main", "Main window already exists, skipping creation");
-    return;
-  }
-
-  // Read display name from package.json
-  // In production: __dirname = build/main, package.json is at ../../package.json
-  const packageJsonPath = path.join(__dirname, "..", "..", "package.json");
-
-  const minWindowWidth = 390;
-  const minWindowHeight = 456;
-  const windowWidth = 1000;
-  const windowHeight = 700;
-  let windowTitle = "Glaze App";
-
-  try {
-    if (fs.existsSync(packageJsonPath)) {
-      const packageJson = JSON.parse(await fs.promises.readFile(packageJsonPath, "utf-8"));
-      windowTitle = packageJson.productName || packageJson.appConfig?.displayName || windowTitle;
-    }
-  } catch {
-    // Use defaults
-  }
-
-  // Create main window
-  const browserWindowStartTime = Date.now();
-  logger.info("main", "⏱️ [COLD_START] Creating BrowserWindow", {
-    timestamp: new Date().toISOString(),
-  });
+  if (mainWindow && !mainWindow.isDestroyed()) return;
 
   mainWindow = new BrowserWindow({
     windowKey: "main", // Stable key for frame persistence
-    width: windowWidth,
-    height: windowHeight,
-    minWidth: minWindowWidth,
-    minHeight: minWindowHeight,
-    title: windowTitle,
-    show: false, // Don't show until WebView is ready (prevents flickering)
+    width: 1240,
+    height: 800,
+    minWidth: 760,
+    minHeight: 520,
+    title: APP_NAME,
+    show: false, // Shown on ready-to-show to avoid a blank flash
     webPreferences: {
       preload: getPreloadPath(),
     },
   });
 
-  const browserWindowEndTime = Date.now();
-  logger.info("main", "⏱️ [COLD_START] BrowserWindow constructor completed", {
-    timestamp: new Date().toISOString(),
-    duration_ms: browserWindowEndTime - browserWindowStartTime,
-  });
-
-  // Wait for ready-to-show event before showing window (prevents flickering)
-  mainWindow.once("ready-to-show", () => {
-    const showStartTime = Date.now();
-    logger.info("main", "⏱️ [COLD_START] ready-to-show event received, showing window", {
-      timestamp: new Date().toISOString(),
-    });
-
-    mainWindow?.show();
-
-    const showEndTime = Date.now();
-    logger.info("main", "⏱️ [COLD_START] Window shown", {
-      timestamp: new Date().toISOString(),
-      duration_ms: showEndTime - showStartTime,
-    });
-  });
-
-  // Determine URL to load (dev server preferred, fallback to build files)
-  const url = await getWindowUrl("main-window.html");
-  logger.info("main", "Resolved main window URL", { url });
-
-  // Load URL - window will be shown automatically when ready-to-show fires
-  const loadURLStartTime = Date.now();
-  logger.info("main", "⏱️ [COLD_START] Loading URL in window", {
-    timestamp: new Date().toISOString(),
-    url,
-  });
-
-  await mainWindow.loadURL(url);
-
-  const loadURLEndTime = Date.now();
-  logger.info("main", "⏱️ [COLD_START] URL loaded in window (waiting for ready-to-show)", {
-    timestamp: new Date().toISOString(),
-    duration_ms: loadURLEndTime - loadURLStartTime,
-  });
+  mainWindow.once("ready-to-show", () => mainWindow?.show());
+  await mainWindow.loadURL(await getWindowUrl("main-window.html"));
 }
 
-// ── Application menu ──────────────────────────────────────────────────
 async function setupApplicationMenu() {
   await initDevToolsButtonState();
   const menu = Menu.buildFromTemplate([
     {
-      label: "App",
+      label: APP_NAME,
       submenu: [
         { role: "about" },
         { type: "separator" },
@@ -166,68 +63,22 @@ async function setupApplicationMenu() {
     { role: "windowMenu" },
   ]);
   Menu.setApplicationMenu(menu);
-  logger.info("main", "Application menu configured with Settings");
 }
 
-// ── Lifecycle events ──────────────────────────────────────────────────
-app.on("window-all-closed", () => {
-  // On macOS, apps typically don't quit when all windows are closed
-  // Uncomment to quit on all windows closed:
-  // app.quit();
-});
+// macOS convention: keep running when the last window closes.
+app.on("window-all-closed", () => {});
 
+// Re-open the main window when the Dock icon is clicked and nothing is visible.
 app.on("activate", (hasVisibleWindows) => {
-  logger.info("main", "App activate event received", {
-    hasVisibleWindows,
-    mainWindowExists: !!mainWindow,
-    mainWindowDestroyed: mainWindow?.isDestroyed() ?? true,
-  });
-
-  // On macOS, re-create window when dock icon clicked if no windows
-  if (!hasVisibleWindows) {
-    if (!mainWindow || mainWindow.isDestroyed()) {
-      logger.info("main", "Creating main window due to activate event");
-      createMainWindow();
-    } else {
-      logger.info("main", "Showing existing main window");
-      mainWindow.show();
-    }
+  if (hasVisibleWindows) return;
+  if (!mainWindow || mainWindow.isDestroyed()) {
+    createMainWindow().catch((error) => logger.error("main", "Failed to create main window", error));
   } else {
-    logger.info("main", "Has visible windows, no action needed");
+    mainWindow.show();
   }
 });
 
-app.on("before-quit", () => {
-  logger.info("main", "App before-quit, cleaning up...");
-});
-
-// ── App ready ─────────────────────────────────────────────────────────
-const startTime = Date.now();
-logger.info("main", "⏱️ [COLD_START] Waiting for app ready...", {
-  timestamp: new Date().toISOString(),
-});
-
 app.whenReady().then(async () => {
-  const windowCreateStartTime = Date.now();
-  logger.info("main", "⏱️ [COLD_START] App ready, creating main window", {
-    timestamp: new Date().toISOString(),
-    wait_duration_ms: windowCreateStartTime - startTime,
-  });
-
-  await devHarness?.runParityAutotestIfRequested();
-  await appAiDevHarness?.runAppAiAutotest();
-
   await setupApplicationMenu();
-
-  createMainWindow()
-    .then(() => {
-      const windowCreateEndTime = Date.now();
-      logger.info("main", "⏱️ [COLD_START] Main window created successfully", {
-        timestamp: new Date().toISOString(),
-        duration_ms: windowCreateEndTime - windowCreateStartTime,
-      });
-    })
-    .catch((error) => {
-      logger.error("main", "Failed to create main window", error);
-    });
+  createMainWindow().catch((error) => logger.error("main", "Failed to create main window", error));
 });
