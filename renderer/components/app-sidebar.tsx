@@ -148,8 +148,11 @@ export function AppSidebar({
           />
         </SidebarListGroup>
 
+        {/* Group actions only render on collapsible groups. */}
         <SidebarListGroup
           title="Harnesses"
+          collapsible
+          defaultOpen
           actions={
             library ? (
               <AddHarnessMenu harnesses={notAdded} onAdd={(id) => onSetHarnessEnabled(id, true)} />
