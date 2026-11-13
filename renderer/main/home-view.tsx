@@ -8,10 +8,10 @@ import { MemoryDetailPane } from "../components/detail/memory-detail";
 import { SessionDetailPane } from "../components/detail/session-detail";
 import { errorMessage } from "../components/detail/detail-parts";
 import { AppSidebar } from "../components/app-sidebar";
-import { GraphPane } from "../components/graph-pane";
 import { LibraryDialogs, type LibraryAction } from "../components/library-dialogs";
 import { ListPane } from "../components/list-pane";
 import { PrimaryToolbar } from "../components/primary-toolbar";
+import { RiverPane } from "../components/river-pane";
 import { plural } from "../lib/format";
 import { HARNESS_STYLES } from "../lib/harness";
 import {
@@ -161,7 +161,7 @@ export function HomeView() {
         inspectorSize={{ default: 460, min: 340 }}
       >
         {search.view === "graph" ? (
-          <GraphPane
+          <RiverPane
             toolbar={toolbar}
             library={data}
             items={items}

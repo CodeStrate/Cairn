@@ -1,4 +1,4 @@
-import { List as ListIcon, Waypoints } from "lucide-react";
+import { ChartGantt, List as ListIcon } from "lucide-react";
 import {
   SegmentedControl,
   SegmentedControlItem,
@@ -39,8 +39,8 @@ export function PrimaryToolbar({ title, subtitle, query, onQueryChange, view, on
           size="large"
           aria-label="View mode"
         >
-          <SegmentedControlItem value="graph" iconOnly aria-label="Graph" title="Graph">
-            <Waypoints />
+          <SegmentedControlItem value="graph" iconOnly aria-label="Timeline" title="Timeline">
+            <ChartGantt />
           </SegmentedControlItem>
           <SegmentedControlItem value="list" iconOnly aria-label="List" title="List">
             <ListIcon />
