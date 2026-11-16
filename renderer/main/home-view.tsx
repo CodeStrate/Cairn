@@ -1,4 +1,4 @@
-import { useState, type DragEvent, type ReactNode } from "react";
+import { useEffect, useState, type DragEvent, type ReactNode } from "react";
 import { useNavigate, useSearch } from "@tanstack/react-router";
 import { SplitView, toast } from "@glaze/core/components";
 
@@ -9,6 +9,9 @@ import { SessionDetailPane } from "../components/detail/session-detail";
 import { errorMessage } from "../components/detail/detail-parts";
 import { AppSidebar } from "../components/app-sidebar";
 import { GraphPane } from "../components/graph-pane";
+import { HelpDialog } from "../components/help/help-dialog";
+import { TourOverlay } from "../components/help/tour-overlay";
+import { TOUR_STEPS } from "../components/help/tour-steps";
 import { LibraryDialogs, type LibraryAction } from "../components/library-dialogs";
 import { ListPane } from "../components/list-pane";
 import { PrimaryToolbar } from "../components/primary-toolbar";
@@ -16,6 +19,7 @@ import { RiverPane } from "../components/river-pane";
 import { TerminalDock } from "../components/terminal/terminal-dock";
 import { plural } from "../lib/format";
 import { HARNESS_STYLES } from "../lib/harness";
+import { hasSeenTour, markTourSeen } from "../lib/onboarding";
 import {
   matchPath,
   useLibrary,
@@ -43,7 +47,29 @@ export function HomeView() {
   const setProjectHidden = useSetProjectHidden();
   const [action, setAction] = useState<LibraryAction | null>(null);
   const [fileDragOver, setFileDragOver] = useState(false);
+  const [helpOpen, setHelpOpen] = useState(false);
+  // The tour starts by itself once, on first launch.
+  const [tourOpen, setTourOpen] = useState(() => !hasSeenTour());
   useLibraryUpdates();
+
+  // Help menu items in the native menu bar (main/index.ts) arrive as notifications.
+  useEffect(() => {
+    const ipc = window.glazeAPI.glaze.ipc;
+    const offHelp = ipc.onNotification("help:open", () => setHelpOpen(true));
+    const offTour = ipc.onNotification("tour:start", () => {
+      setHelpOpen(false);
+      setTourOpen(true);
+    });
+    return () => {
+      offHelp();
+      offTour();
+    };
+  }, []);
+
+  const closeTour = () => {
+    markTourSeen();
+    setTourOpen(false);
+  };
 
   const update = (patch: Partial<HomeSearch>) => {
     void navigate({ search: (previous) => ({ ...previous, ...patch }) });
@@ -71,6 +97,7 @@ export function HomeView() {
       onQueryChange={(q) => update({ q })}
       view={search.view}
       onViewChange={(view) => update({ view })}
+      onOpenHelp={() => setHelpOpen(true)}
     />
   );
 
@@ -156,8 +183,13 @@ export function HomeView() {
       }
     }
     toast.error(
-      paths.length === 1 ? "That file isn't part of your library" : "None of those files are in your library",
-      { description: "Drop a session transcript, a memory file, or a project folder Wefty already knows." },
+      paths.length === 1
+        ? "That file isn't part of your library"
+        : "None of those files are in your library",
+      {
+        description:
+          "Drop a session transcript, a memory file, or a project folder Wefty already knows.",
+      },
     );
   };
 
@@ -195,7 +227,8 @@ export function HomeView() {
       className="relative h-full"
       onDragOver={handleFileDragOver}
       onDragLeave={(event) => {
-        if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setFileDragOver(false);
+        if (!event.currentTarget.contains(event.relatedTarget as Node | null))
+          setFileDragOver(false);
       }}
       onDrop={(event) => void handleFileDrop(event)}
     >
@@ -203,16 +236,18 @@ export function HomeView() {
         storageKey="cairn"
         className="h-full"
         sidebar={
-          <AppSidebar
-            library={data}
-            scope={search.scope}
-            onScopeChange={(next) => update({ scope: next })}
-            onRescan={handleRescan}
-            rescanning={rescan.isPending}
-            onSetHarnessEnabled={handleHarnessEnabled}
-            onHideProject={handleHideProject}
-            onAction={setAction}
-          />
+          <div data-tour="sidebar" className="h-full">
+            <AppSidebar
+              library={data}
+              scope={search.scope}
+              onScopeChange={(next) => update({ scope: next })}
+              onRescan={handleRescan}
+              rescanning={rescan.isPending}
+              onSetHarnessEnabled={handleHarnessEnabled}
+              onHideProject={handleHideProject}
+              onAction={setAction}
+            />
+          </div>
         }
         sidebarSize={{ default: 230, min: 190, max: 320 }}
         primarySize={{ min: 380 }}
@@ -220,7 +255,7 @@ export function HomeView() {
         inspectorSize={{ default: 460, min: 340 }}
       >
         <div className="flex h-full min-h-0">
-          <div className="relative h-full min-w-0 flex-1">
+          <div data-tour="main" className="relative h-full min-w-0 flex-1">
             {search.view === "graph" ? (
               <GraphPane
                 toolbar={toolbar}
@@ -268,6 +303,16 @@ export function HomeView() {
           }}
         />
       ) : null}
+      {helpOpen ? (
+        <HelpDialog
+          onClose={() => setHelpOpen(false)}
+          onStartTour={() => {
+            setHelpOpen(false);
+            setTourOpen(true);
+          }}
+        />
+      ) : null}
+      {tourOpen && data ? <TourOverlay steps={TOUR_STEPS} onClose={closeTour} /> : null}
       {fileDragOver ? (
         <div className="pointer-events-none absolute inset-2 z-40 flex items-center justify-center rounded-xl border-2 border-dashed border-accent bg-window-bg/70">
           <span className="rounded-md bg-window-bg px-3 py-1.5 text-sm">Drop to open in Wefty</span>

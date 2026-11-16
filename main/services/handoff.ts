@@ -41,12 +41,18 @@ function relativeTo(file: string, cwd: string | null): string {
 
 /** Lines from the last few turns that read like unfinished work. */
 function openThreads(turns: TranscriptEntry[]): string[] {
-  const pattern = /(^\s*[-*]\s+\[ \])|\bTODO\b|\bnext steps?\b|\bremaining\b|\bstill need|\bnot yet\b|\bfollow[- ]up\b/i;
+  const pattern =
+    /(^\s*[-*]\s+\[ \])|\bTODO\b|\bnext steps?\b|\bremaining\b|\bstill need|\bnot yet\b|\bfollow[- ]up\b/i;
   const found: string[] = [];
   for (const turn of turns.slice(-OPEN_THREAD_SCAN)) {
     for (const line of turn.text.split("\n")) {
       const cleaned = line.trim();
-      if (cleaned.length > 3 && cleaned.length < 300 && pattern.test(cleaned) && !found.includes(cleaned)) {
+      if (
+        cleaned.length > 3 &&
+        cleaned.length < 300 &&
+        pattern.test(cleaned) &&
+        !found.includes(cleaned)
+      ) {
         found.push(cleaned);
         if (found.length >= MAX_OPEN_THREADS) return found;
       }
@@ -82,7 +88,8 @@ export function buildHandoff(detail: SessionDetail, memories: MemorySummary[]): 
     "",
   );
 
-  if (firstPrompt) lines.push("## Goal (first request)", "", quote(clip(firstPrompt, FIRST_PROMPT_CHARS)), "");
+  if (firstPrompt)
+    lines.push("## Goal (first request)", "", quote(clip(firstPrompt, FIRST_PROMPT_CHARS)), "");
 
   const threads = openThreads(turns);
   if (threads.length > 0) {
@@ -94,14 +101,21 @@ export function buildHandoff(detail: SessionDetail, memories: MemorySummary[]): 
   if (recent.length > 0) {
     lines.push(`## Where it left off (last ${recent.length} turns)`, "");
     for (const turn of recent) {
-      lines.push(`**${turn.role === "user" ? "User" : "Assistant"}:**`, "", clip(turn.text, TURN_CHARS), "");
+      lines.push(
+        `**${turn.role === "user" ? "User" : "Assistant"}:**`,
+        "",
+        clip(turn.text, TURN_CHARS),
+        "",
+      );
     }
   }
 
   if (session.filesTouched.length > 0) {
     lines.push(`## Files touched (${session.filesTouched.length})`, "");
-    for (const file of session.filesTouched.slice(0, MAX_FILES)) lines.push(`- \`${relativeTo(file, session.cwd)}\``);
-    if (session.filesTouched.length > MAX_FILES) lines.push(`- …and ${session.filesTouched.length - MAX_FILES} more`);
+    for (const file of session.filesTouched.slice(0, MAX_FILES))
+      lines.push(`- \`${relativeTo(file, session.cwd)}\``);
+    if (session.filesTouched.length > MAX_FILES)
+      lines.push(`- …and ${session.filesTouched.length - MAX_FILES} more`);
     lines.push("");
   }
 

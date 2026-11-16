@@ -18,10 +18,15 @@ let active: (() => void) | null = null;
 
 function targetAt(x: number, y: number): HTMLElement | null {
   const element = document.elementFromPoint(x, y);
-  return element instanceof Element ? (element.closest<HTMLElement>("[data-drop-target]") ?? null) : null;
+  return element instanceof Element
+    ? (element.closest<HTMLElement>("[data-drop-target]") ?? null)
+    : null;
 }
 
-export function startItemDrag(payload: ItemDragPayload, start: { clientX: number; clientY: number }): void {
+export function startItemDrag(
+  payload: ItemDragPayload,
+  start: { clientX: number; clientY: number },
+): void {
   active?.();
 
   const ghost = document.createElement("div");

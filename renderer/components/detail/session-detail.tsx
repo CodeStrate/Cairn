@@ -201,7 +201,8 @@ export function SessionDetailPane({
       toast.error(`Couldn't build the handoff: ${errorMessage(error)}`);
     }
   };
-  const copyHandoff = () => void withHandoff((handoff) => copyWithToast(handoff.markdown, "Handoff"));
+  const copyHandoff = () =>
+    void withHandoff((handoff) => copyWithToast(handoff.markdown, "Handoff"));
   const insertHandoffPath = () =>
     void withHandoff((handoff) => insertText(shellQuote(handoff.path), session.cwd));
   const continueIn = (cli: "claude" | "codex", name: string) =>
@@ -229,7 +230,11 @@ export function SessionDetailPane({
           >
             <SquareTerminal />
           </Button>
-          <Button aria-label="Copy handoff" title="Copy handoff (Markdown summary)" onClick={copyHandoff}>
+          <Button
+            aria-label="Copy handoff"
+            title="Copy handoff (Markdown summary)"
+            onClick={copyHandoff}
+          >
             <ClipboardCopy />
           </Button>
           <MoreActionsMenu>
@@ -239,10 +244,16 @@ export function SessionDetailPane({
             <DropdownMenuItem icon="text.insert" onSelect={insertHandoffPath}>
               Insert Handoff Path in Terminal
             </DropdownMenuItem>
-            <DropdownMenuItem icon="arrow.right.circle" onSelect={() => continueIn("claude", "Claude")}>
+            <DropdownMenuItem
+              icon="arrow.right.circle"
+              onSelect={() => continueIn("claude", "Claude")}
+            >
               Continue in Claude Code
             </DropdownMenuItem>
-            <DropdownMenuItem icon="arrow.right.circle" onSelect={() => continueIn("codex", "Codex")}>
+            <DropdownMenuItem
+              icon="arrow.right.circle"
+              onSelect={() => continueIn("codex", "Codex")}
+            >
               Continue in Codex
             </DropdownMenuItem>
             <DropdownMenuSeparator />
@@ -352,7 +363,11 @@ export function SessionDetailPane({
                   }}
                 />
                 <label className="flex shrink-0 items-center gap-1.5">
-                  <Switch checked={showTools} onCheckedChange={setShowTools} aria-label="Show tool calls" />
+                  <Switch
+                    checked={showTools}
+                    onCheckedChange={setShowTools}
+                    aria-label="Show tool calls"
+                  />
                   <Text variant="small" color="secondary">
                     Tools
                   </Text>
@@ -362,7 +377,11 @@ export function SessionDetailPane({
                   variant="transparent"
                   iconOnly
                   aria-label={newestFirst ? "Show oldest first" : "Show newest first"}
-                  title={newestFirst ? "Newest first — click for oldest first" : "Oldest first — click for newest first"}
+                  title={
+                    newestFirst
+                      ? "Newest first — click for oldest first"
+                      : "Oldest first — click for newest first"
+                  }
                   onClick={() => {
                     setNewestFirst(!newestFirst);
                     setVisibleCount(PAGE_SIZE);

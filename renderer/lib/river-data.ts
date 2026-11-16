@@ -10,7 +10,13 @@ import { itemSearchText, projectLabel } from "./scope";
  * whether two labelled bars collide depends on the zoom level.
  */
 
-export type RiverRelation = "wrote" | "written by" | "uses" | "used by" | "links to" | "linked from";
+export type RiverRelation =
+  | "wrote"
+  | "written by"
+  | "uses"
+  | "used by"
+  | "links to"
+  | "linked from";
 
 export interface RiverItem {
   id: string;

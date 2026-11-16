@@ -359,7 +359,13 @@ export function RiverPane({
             {days.map((t) => (
               <g key={t}>
                 {Math.round(t / DAY) % labelEvery ? null : (
-                  <text x={x(t) + 6} y={19} fontSize={11} fill="currentColor" className="tabular-nums">
+                  <text
+                    x={x(t) + 6}
+                    y={19}
+                    fontSize={11}
+                    fill="currentColor"
+                    className="tabular-nums"
+                  >
                     {(dayPx > 140 ? dayLong : dayShort).format(t)}
                   </text>
                 )}
@@ -433,7 +439,8 @@ export function RiverPane({
                 className="block"
                 onPointerOver={(event) => {
                   if (dragRef.current?.moved) return;
-                  const id = (event.target as Element).closest("[data-id]")?.getAttribute("data-id") ?? null;
+                  const id =
+                    (event.target as Element).closest("[data-id]")?.getAttribute("data-id") ?? null;
                   if (id !== hoverId) setHoverId(id);
                 }}
                 onPointerLeave={() => setHoverId(null)}
@@ -442,7 +449,15 @@ export function RiverPane({
                 <g className="text-primary">
                   {days.map((t) =>
                     Math.round(t / DAY) % 2 ? (
-                      <rect key={t} x={x(t)} y={0} width={dayPx} height={height} fill="currentColor" opacity={0.035} />
+                      <rect
+                        key={t}
+                        x={x(t)}
+                        y={0}
+                        width={dayPx}
+                        height={height}
+                        fill="currentColor"
+                        opacity={0.035}
+                      />
                     ) : null,
                   )}
                 </g>
@@ -452,13 +467,30 @@ export function RiverPane({
                       Array.from({ length: 24 / hourStep - 1 }, (_, i) => {
                         const hx = x(t + (i + 1) * hourStep * 3_600_000);
                         return (
-                          <line key={`${t}:${i}`} x1={hx} x2={hx} y1={0} y2={height} stroke="currentColor" opacity={0.35} strokeDasharray="2 4" />
+                          <line
+                            key={`${t}:${i}`}
+                            x1={hx}
+                            x2={hx}
+                            y1={0}
+                            y2={height}
+                            stroke="currentColor"
+                            opacity={0.35}
+                            strokeDasharray="2 4"
+                          />
                         );
                       }),
                     )}
                   </g>
                 ) : null}
-                <line x1={x(now)} x2={x(now)} y1={0} y2={height} className="text-tertiary" stroke="currentColor" strokeDasharray="1 3" />
+                <line
+                  x1={x(now)}
+                  x2={x(now)}
+                  y1={0}
+                  y2={height}
+                  className="text-tertiary"
+                  stroke="currentColor"
+                  strokeDasharray="1 3"
+                />
                 <g className="text-quaternary">
                   {layout.lanes.map((lane, index) => (
                     <line
@@ -503,7 +535,14 @@ export function RiverPane({
                     >
                       {item.kind === "session" ? (
                         <>
-                          <rect x={left} y={y - BAR_H / 2} width={glyphRight - left} height={BAR_H} rx={3} fill={item.color} />
+                          <rect
+                            x={left}
+                            y={y - BAR_H / 2}
+                            width={glyphRight - left}
+                            height={BAR_H}
+                            rx={3}
+                            fill={item.color}
+                          />
                           {selected ? (
                             <rect
                               x={left - 2.5}
@@ -538,7 +577,9 @@ export function RiverPane({
                         fontSize={LABEL_FONT_SIZE}
                         fontWeight={selected ? 600 : 400}
                         fill="currentColor"
-                        className={selected || item.id === focus ? "text-primary" : "text-secondary"}
+                        className={
+                          selected || item.id === focus ? "text-primary" : "text-secondary"
+                        }
                       >
                         {label.text}
                       </text>
@@ -570,20 +611,47 @@ export function RiverPane({
       <div className="flex shrink-0 items-center gap-4 border-t border-separator px-4 py-2">
         <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-4 gap-y-1">
           {HARNESS_ORDER.filter((id) => harnessesPresent.has(id)).map((id) => (
-            <LegendEntry key={id} glyph={<HarnessDot harness={id} />} label={HARNESS_STYLES[id].name} />
+            <LegendEntry
+              key={id}
+              glyph={<HarnessDot harness={id} />}
+              label={HARNESS_STYLES[id].name}
+            />
           ))}
-          {hasShared ? <LegendEntry glyph={<HarnessDot color={SHARED_STYLE.color} />} label="Shared" /> : null}
+          {hasShared ? (
+            <LegendEntry glyph={<HarnessDot color={SHARED_STYLE.color} />} label="Shared" />
+          ) : null}
           {items.length > 0 ? <LegendEntry glyph={<MemoryGlyph />} label="Memory" /> : null}
           {hasGenerated ? <LegendEntry glyph={<MemoryGlyph hollow />} label="Generated" /> : null}
         </div>
         <div className="flex shrink-0 items-center gap-1">
-          <Button variant="transparent" size="small" iconOnly aria-label="Zoom out" title="Zoom out" onClick={() => zoomBy(1 / 1.6)}>
+          <Button
+            variant="transparent"
+            size="small"
+            iconOnly
+            aria-label="Zoom out"
+            title="Zoom out"
+            onClick={() => zoomBy(1 / 1.6)}
+          >
             <Minus />
           </Button>
-          <Button variant="transparent" size="small" iconOnly aria-label="Zoom in" title="Zoom in" onClick={() => zoomBy(1.6)}>
+          <Button
+            variant="transparent"
+            size="small"
+            iconOnly
+            aria-label="Zoom in"
+            title="Zoom in"
+            onClick={() => zoomBy(1.6)}
+          >
             <Plus />
           </Button>
-          <Button variant="transparent" size="small" iconOnly aria-label="Fit timeline" title="Fit timeline" onClick={() => setManualView(null)}>
+          <Button
+            variant="transparent"
+            size="small"
+            iconOnly
+            aria-label="Fit timeline"
+            title="Fit timeline"
+            onClick={() => setManualView(null)}
+          >
             <Maximize />
           </Button>
         </div>

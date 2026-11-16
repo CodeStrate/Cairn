@@ -1,13 +1,20 @@
-// Cairn backend entry point. The runtime wires IPC, the native bridge, and lifecycle
+// Wefty backend entry point. The runtime wires IPC, the native bridge, and lifecycle
 // handling before this file runs.
 
-import { app, BrowserWindow, Menu, logger, initDevToolsButtonState } from "@glaze/core/backend";
+import {
+  app,
+  BrowserWindow,
+  ipcMain,
+  Menu,
+  logger,
+  initDevToolsButtonState,
+} from "@glaze/core/backend";
 
 import { registerHandlers } from "./handlers/index.js";
 import { getPreloadPath, getWindowUrl } from "./windows/window-paths.js";
 import { openSettingsWindow } from "./windows/settings-window.js";
 
-const APP_NAME = "Cairn";
+const APP_NAME = "Wefty";
 
 registerHandlers();
 
@@ -61,6 +68,22 @@ async function setupApplicationMenu() {
     { role: "editMenu" },
     { role: "viewMenu" },
     { role: "windowMenu" },
+    {
+      label: "Help",
+      submenu: [
+        {
+          label: "Wefty Help",
+          icon: "questionmark.circle",
+          accelerator: "Command+?",
+          click: () => ipcMain.broadcast("help:open", {}),
+        },
+        {
+          label: "Show Tour",
+          icon: "sparkles",
+          click: () => ipcMain.broadcast("tour:start", {}),
+        },
+      ],
+    },
   ]);
   Menu.setApplicationMenu(menu);
 }

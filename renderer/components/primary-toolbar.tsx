@@ -1,4 +1,4 @@
-import { ChartGantt, List as ListIcon, Network, SquareTerminal } from "lucide-react";
+import { ChartGantt, CircleHelp, List as ListIcon, Network, SquareTerminal } from "lucide-react";
 import {
   Button,
   SegmentedControl,
@@ -21,6 +21,7 @@ interface PrimaryToolbarProps {
   onQueryChange: (query: string) => void;
   view: ViewMode;
   onViewChange: (view: ViewMode) => void;
+  onOpenHelp: () => void;
 }
 
 export function PrimaryToolbar({
@@ -30,6 +31,7 @@ export function PrimaryToolbar({
   onQueryChange,
   view,
   onViewChange,
+  onOpenHelp,
 }: PrimaryToolbarProps) {
   const { toggle, open } = useTerminals();
   return (
@@ -39,36 +41,55 @@ export function PrimaryToolbar({
         <ToolbarDescription>{subtitle}</ToolbarDescription>
       </ToolbarContent>
       <ToolbarActions>
-        <Button
-          variant="glass"
-          size="large"
-          iconOnly
-          aria-label="Toggle terminal"
-          title={open ? "Hide terminal" : "Show terminal"}
-          onClick={toggle}
-        >
-          <SquareTerminal />
-        </Button>
-        <ToolbarSearchButton value={query} onChange={onQueryChange} size="large" />
-        <SegmentedControl
-          value={view}
-          onValueChange={(value) => {
-            if (isViewMode(value)) onViewChange(value);
-          }}
-          variant="glass"
-          size="large"
-          aria-label="View mode"
-        >
-          <SegmentedControlItem value="river" iconOnly aria-label="Timeline" title="Timeline">
-            <ChartGantt />
-          </SegmentedControlItem>
-          <SegmentedControlItem value="graph" iconOnly aria-label="Graph" title="Graph">
-            <Network />
-          </SegmentedControlItem>
-          <SegmentedControlItem value="list" iconOnly aria-label="List" title="List">
-            <ListIcon />
-          </SegmentedControlItem>
-        </SegmentedControl>
+        {/* data-tour wrappers are the guided tour's anchors (see help/tour-steps.ts). */}
+        <div data-tour="help" className="flex">
+          <Button
+            variant="glass"
+            size="large"
+            iconOnly
+            aria-label="Help"
+            title="Help"
+            onClick={onOpenHelp}
+          >
+            <CircleHelp />
+          </Button>
+        </div>
+        <div data-tour="terminal" className="flex">
+          <Button
+            variant="glass"
+            size="large"
+            iconOnly
+            aria-label="Toggle terminal"
+            title={open ? "Hide terminal" : "Show terminal"}
+            onClick={toggle}
+          >
+            <SquareTerminal />
+          </Button>
+        </div>
+        <div data-tour="search" className="flex">
+          <ToolbarSearchButton value={query} onChange={onQueryChange} size="large" />
+        </div>
+        <div data-tour="views" className="flex">
+          <SegmentedControl
+            value={view}
+            onValueChange={(value) => {
+              if (isViewMode(value)) onViewChange(value);
+            }}
+            variant="glass"
+            size="large"
+            aria-label="View mode"
+          >
+            <SegmentedControlItem value="river" iconOnly aria-label="Timeline" title="Timeline">
+              <ChartGantt />
+            </SegmentedControlItem>
+            <SegmentedControlItem value="graph" iconOnly aria-label="Graph" title="Graph">
+              <Network />
+            </SegmentedControlItem>
+            <SegmentedControlItem value="list" iconOnly aria-label="List" title="List">
+              <ListIcon />
+            </SegmentedControlItem>
+          </SegmentedControl>
+        </div>
       </ToolbarActions>
     </Toolbar>
   );

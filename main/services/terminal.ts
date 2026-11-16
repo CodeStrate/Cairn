@@ -47,8 +47,15 @@ function ensureSpawnHelperExecutable(): void {
   if (helperChecked || process.platform === "win32") return;
   helperChecked = true;
   try {
-    const packageDir = path.dirname(createRequire(import.meta.url).resolve("node-pty/package.json"));
-    const helper = path.join(packageDir, "prebuilds", `${process.platform}-${process.arch}`, "spawn-helper");
+    const packageDir = path.dirname(
+      createRequire(import.meta.url).resolve("node-pty/package.json"),
+    );
+    const helper = path.join(
+      packageDir,
+      "prebuilds",
+      `${process.platform}-${process.arch}`,
+      "spawn-helper",
+    );
     if ((fs.statSync(helper).mode & 0o111) === 0) fs.chmodSync(helper, 0o755);
   } catch {
     // Unresolvable or read-only (e.g. a signed bundle); spawn will report the real error.
