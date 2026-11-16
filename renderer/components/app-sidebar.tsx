@@ -25,6 +25,7 @@ import { relativeTime } from "../lib/format";
 import { HARNESS_ORDER, HARNESS_STYLES } from "../lib/harness";
 import { projectScope } from "../lib/scope";
 import { revealPath } from "./item-actions";
+import { useTerminals } from "../lib/terminal-context";
 import type { LibraryAction } from "./library-dialogs";
 import { HarnessDot } from "./item-visuals";
 
@@ -94,6 +95,7 @@ export function AppSidebar({
   onHideProject,
   onAction,
 }: AppSidebarProps) {
+  const { openTerminal } = useTerminals();
   const sessionCount = library?.sessions.length;
   const memoryCount = library?.memories.length;
   const total = library ? library.sessions.length + library.memories.length : undefined;
@@ -209,6 +211,12 @@ export function AppSidebar({
                   </ContextMenuItem>
                   <ContextMenuItem icon="folder" onSelect={() => revealPath(project.path)}>
                     Reveal in Finder
+                  </ContextMenuItem>
+                  <ContextMenuItem
+                    icon="terminal"
+                    onSelect={() => void openTerminal({ cwd: project.path, title: project.name })}
+                  >
+                    Open in Terminal
                   </ContextMenuItem>
                   <ContextMenuSeparator />
                   <ContextMenuItem icon="eye.slash" onSelect={() => onHideProject(project)}>

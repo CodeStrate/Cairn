@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { SquareTerminal, Wrench, X } from "lucide-react";
+import { ArrowDownUp, ClipboardCopy, Copy, SquareTerminal, Wrench, X } from "lucide-react";
 import {
   AIChat,
   Badge,
@@ -10,12 +10,16 @@ import {
   CollapsibleTrigger,
   DropdownMenuItem,
   DropdownMenuSeparator,
+  Input,
   Markdown,
   ScrollArea,
+  Switch,
   Text,
+  toast,
 } from "@glaze/core/components";
 
 import type {
+  HandoffResult,
   LibraryItem,
   LibrarySnapshot,
   SessionSummary,
@@ -24,9 +28,11 @@ import type {
 
 import { formatDateTime, relativeTime, shortenPath } from "../../lib/format";
 import { canTrash } from "../../lib/harness";
-import { useSessionDetail } from "../../lib/library-api";
+import { getHandoff, useSessionDetail } from "../../lib/library-api";
+import { resumeSpec, shellQuote } from "../../lib/resume";
 import { projectLabel } from "../../lib/scope";
-import { copyWithToast, revealPath } from "../item-actions";
+import { useTerminals } from "../../lib/terminal-context";
+import { copyWithToast, openFolderInTerminal, resumeInTerminal, revealPath } from "../item-actions";
 import { HarnessBadge } from "../item-visuals";
 import {
   DetailSection,
@@ -96,7 +102,32 @@ function ToolGroup({ entries }: { entries: TranscriptEntry[] }) {
   );
 }
 
+function CopyMessageButton({ text }: { text: string }) {
+  return (
+    <Button
+      variant="transparent"
+      size="small"
+      iconOnly
+      aria-label="Copy message"
+      title="Copy message"
+      className="absolute -top-1 right-0 opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
+      onClick={() => void copyWithToast(text, "Message")}
+    >
+      <Copy />
+    </Button>
+  );
+}
+
 function TranscriptMessage({ entry }: { entry: TranscriptEntry }) {
+  return (
+    <div className="group relative min-w-0">
+      <TranscriptBody entry={entry} />
+      {entry.role === "system" ? null : <CopyMessageButton text={entry.text} />}
+    </div>
+  );
+}
+
+function TranscriptBody({ entry }: { entry: TranscriptEntry }) {
   if (entry.role === "system") {
     return (
       <Text variant="small" color="tertiary" className="line-clamp-3 break-words text-center">
@@ -138,14 +169,49 @@ export function SessionDetailPane({
   onRequestTrash,
 }: SessionDetailPaneProps) {
   const detail = useSessionDetail(session.id);
+  const { openTerminal, insertText } = useTerminals();
+  const canResume = resumeSpec(session) !== null;
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  const [query, setQuery] = useState("");
+  const [showTools, setShowTools] = useState(true);
+  const [newestFirst, setNewestFirst] = useState(false);
 
   const memoriesTouched = library.memories.filter(
     (memory) => session.filesTouched.includes(memory.path) || memory.sessionId === session.id,
   );
   const entries = detail.data?.entries ?? [];
-  const blocks = toBlocks(entries.slice(0, visibleCount));
-  const remaining = entries.length - visibleCount;
+  const needle = query.trim().toLowerCase();
+  const shown = entries.filter(
+    (entry) =>
+      (showTools || entry.role !== "tool") &&
+      (!needle ||
+        entry.text.toLowerCase().includes(needle) ||
+        (entry.toolName?.toLowerCase().includes(needle) ?? false)),
+  );
+  const ordered = newestFirst ? [...shown].reverse() : shown;
+  const blocks = toBlocks(ordered.slice(0, visibleCount));
+  const remaining = ordered.length - visibleCount;
+
+  // Handoff: a Markdown brief of this session (see main/services/handoff.ts) that any
+  // agent can pick up, including one from a different harness.
+  const withHandoff = async (use: (handoff: HandoffResult) => unknown) => {
+    try {
+      await use(await getHandoff(session.id));
+    } catch (error) {
+      toast.error(`Couldn't build the handoff: ${errorMessage(error)}`);
+    }
+  };
+  const copyHandoff = () => void withHandoff((handoff) => copyWithToast(handoff.markdown, "Handoff"));
+  const insertHandoffPath = () =>
+    void withHandoff((handoff) => insertText(shellQuote(handoff.path), session.cwd));
+  const continueIn = (cli: "claude" | "codex", name: string) =>
+    void withHandoff((handoff) =>
+      openTerminal({
+        cwd: session.cwd,
+        command: `${cli} ${shellQuote(`Read ${handoff.path} and continue the work it describes.`)}`,
+        title: `${name}: ${session.title.slice(0, 18)}`,
+      }),
+    );
 
   const copyResume = () => {
     if (session.resumeCommand) void copyWithToast(session.resumeCommand, "Resume command");
@@ -156,21 +222,42 @@ export function SessionDetailPane({
       actions={
         <>
           <Button
-            aria-label="Copy resume command"
-            title={
-              session.resumeCommand ? "Copy resume command" : "This harness can't resume sessions"
-            }
-            disabled={!session.resumeCommand}
-            onClick={copyResume}
+            aria-label="Resume in terminal"
+            title={canResume ? "Resume in terminal" : "This harness can't resume sessions"}
+            disabled={!canResume}
+            onClick={() => resumeInTerminal(openTerminal, session)}
           >
             <SquareTerminal />
           </Button>
+          <Button aria-label="Copy handoff" title="Copy handoff (Markdown summary)" onClick={copyHandoff}>
+            <ClipboardCopy />
+          </Button>
           <MoreActionsMenu>
+            <DropdownMenuItem icon="doc.on.clipboard" onSelect={copyHandoff}>
+              Copy Handoff
+            </DropdownMenuItem>
+            <DropdownMenuItem icon="text.insert" onSelect={insertHandoffPath}>
+              Insert Handoff Path in Terminal
+            </DropdownMenuItem>
+            <DropdownMenuItem icon="arrow.right.circle" onSelect={() => continueIn("claude", "Claude")}>
+              Continue in Claude Code
+            </DropdownMenuItem>
+            <DropdownMenuItem icon="arrow.right.circle" onSelect={() => continueIn("codex", "Codex")}>
+              Continue in Codex
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
             <DropdownMenuItem icon="folder" onSelect={() => revealPath(session.sourcePath)}>
               Reveal in Finder
             </DropdownMenuItem>
             <DropdownMenuItem
               icon="terminal"
+              disabled={!session.cwd}
+              onSelect={() => openFolderInTerminal(openTerminal, session.cwd)}
+            >
+              Open Folder in Terminal
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              icon="doc.on.doc"
               disabled={!session.resumeCommand}
               onSelect={copyResume}
             >
@@ -252,6 +339,46 @@ export function SessionDetailPane({
 
         <DetailSection title="Conversation" count={detail.data?.totalEntries}>
           <div className="flex min-w-0 flex-col gap-5">
+            {entries.length > 0 ? (
+              <div className="flex min-w-0 items-center gap-2">
+                <Input
+                  size="small"
+                  className="min-w-0 flex-1"
+                  placeholder="Search conversation"
+                  value={query}
+                  onChange={(event) => {
+                    setQuery(event.target.value);
+                    setVisibleCount(PAGE_SIZE);
+                  }}
+                />
+                <label className="flex shrink-0 items-center gap-1.5">
+                  <Switch checked={showTools} onCheckedChange={setShowTools} aria-label="Show tool calls" />
+                  <Text variant="small" color="secondary">
+                    Tools
+                  </Text>
+                </label>
+                <Button
+                  size="small"
+                  variant="transparent"
+                  iconOnly
+                  aria-label={newestFirst ? "Show oldest first" : "Show newest first"}
+                  title={newestFirst ? "Newest first — click for oldest first" : "Oldest first — click for newest first"}
+                  onClick={() => {
+                    setNewestFirst(!newestFirst);
+                    setVisibleCount(PAGE_SIZE);
+                  }}
+                >
+                  <ArrowDownUp />
+                </Button>
+              </div>
+            ) : null}
+            {needle ? (
+              <Text variant="small" color="tertiary">
+                {shown.length === 0
+                  ? `No messages match “${query.trim()}”.`
+                  : `${shown.length.toLocaleString()} matching ${shown.length === 1 ? "entry" : "entries"}`}
+              </Text>
+            ) : null}
             {detail.isPending ? <DetailSkeleton /> : null}
             {detail.isError ? (
               <Text color="secondary">

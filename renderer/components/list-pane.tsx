@@ -14,8 +14,18 @@ import type { LibraryItem, LibrarySnapshot } from "@main/shared/types";
 
 import { dateBucket, plural, relativeTime } from "../lib/format";
 import { MEMORY_TYPE_LABELS, canTrash } from "../lib/harness";
+import { resumeSpec } from "../lib/resume";
 import { projectLabel } from "../lib/scope";
-import { canReveal, copyWithToast, itemPath, revealPath } from "./item-actions";
+import { useTerminals } from "../lib/terminal-context";
+import {
+  canReveal,
+  copyWithToast,
+  dragProps,
+  itemPath,
+  openFolderInTerminal,
+  resumeInTerminal,
+  revealPath,
+} from "./item-actions";
 import { HarnessBadge, ItemIcon } from "./item-visuals";
 
 interface ListPaneProps {
@@ -75,6 +85,7 @@ export function ListPane({
   onRequestTrash,
 }: ListPaneProps) {
   const selectedItem = items.find((item) => item.id === selectedId) ?? null;
+  const { openTerminal } = useTerminals();
 
   let content: ReactNode;
   if (loading || !library) {
@@ -108,7 +119,7 @@ export function ListPane({
               {group.items.map((item) => (
                 <ContextMenu key={item.id}>
                   <ContextMenuTrigger asChild>
-                    <List.Item item={item}>
+                    <List.Item item={item} {...dragProps(item)}>
                       <List.ItemIcon>
                         <ItemIcon item={item} className="size-4 text-secondary" />
                       </List.ItemIcon>
@@ -128,6 +139,22 @@ export function ListPane({
                       onSelect={() => revealPath(itemPath(item))}
                     >
                       Reveal in Finder
+                    </ContextMenuItem>
+                    {item.kind === "session" ? (
+                      <ContextMenuItem
+                        icon="play"
+                        disabled={!resumeSpec(item)}
+                        onSelect={() => resumeInTerminal(openTerminal, item)}
+                      >
+                        Resume in Terminal
+                      </ContextMenuItem>
+                    ) : null}
+                    <ContextMenuItem
+                      icon="terminal"
+                      disabled={!item.cwd}
+                      onSelect={() => openFolderInTerminal(openTerminal, item.cwd)}
+                    >
+                      Open Folder in Terminal
                     </ContextMenuItem>
                     {item.kind === "session" ? (
                       <ContextMenuItem
