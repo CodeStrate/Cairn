@@ -28,6 +28,17 @@ export const XDG_DATA_HOME = process.env.XDG_DATA_HOME || path.join(HOME, ".loca
 /** The sqlite3 CLI ships with macOS; elsewhere it must be on PATH. */
 export const SQLITE_BINARY = process.platform === "darwin" ? "/usr/bin/sqlite3" : "sqlite3";
 
+/** The user's login shell, used for embedded terminals. */
+export function defaultShell(): string {
+  if (process.platform === "win32") return process.env.COMSPEC || "powershell.exe";
+  return process.env.SHELL || (process.platform === "darwin" ? "/bin/zsh" : "/bin/bash");
+}
+
+/** Arguments that make the shell load the user's profile (PATH, nvm, etc.). */
+export function loginShellArgs(): string[] {
+  return process.platform === "win32" ? [] : ["-l"];
+}
+
 export function isAbsolutePath(value: string): boolean {
   return path.isAbsolute(value);
 }

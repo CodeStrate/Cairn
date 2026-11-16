@@ -6,6 +6,7 @@ import * as path from "path";
 import { fileURLToPath } from "url";
 
 import { registerLibraryHandlers } from "./library.js";
+import { registerTerminalHandlers } from "./terminal.js";
 import { getSettingsWindow, openSettingsWindow } from "../windows/settings-window.js";
 
 import { ipcMain, logger } from "@glaze/core/backend";
@@ -30,6 +31,9 @@ export function registerHandlers(): void {
 
   // Sessions, memories, and context files across agent harnesses
   registerLibraryHandlers();
+
+  // Embedded terminals (node-pty)
+  registerTerminalHandlers();
 
   logger.info("handlers", "IPC handlers registered");
 }
