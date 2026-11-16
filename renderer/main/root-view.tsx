@@ -2,6 +2,8 @@ import { Outlet } from "@tanstack/react-router";
 import * as React from "react";
 import { useTheme } from "@glaze/core/hooks";
 
+import { TerminalProvider } from "../lib/terminal-context";
+
 export function RootView() {
   useTheme();
 
@@ -17,7 +19,9 @@ export function RootView() {
       {/* Draggable top bar - fallback for when no toolbar is present */}
       <div className="drag-region fixed top-0 left-0 right-0 h-13" />
       {/* The home view owns its SplitView shell (sidebar, graph/list, inspector). */}
-      <Outlet />
+      <TerminalProvider>
+        <Outlet />
+      </TerminalProvider>
     </div>
   );
 }

@@ -23,7 +23,15 @@ interface PrimaryToolbarProps {
   onViewChange: (view: ViewMode) => void;
 }
 
-export function PrimaryToolbar({ title, subtitle, query, onQueryChange, view, onViewChange }: PrimaryToolbarProps) {
+export function PrimaryToolbar({
+  title,
+  subtitle,
+  query,
+  onQueryChange,
+  view,
+  onViewChange,
+}: PrimaryToolbarProps) {
+  const { toggle, open } = useTerminals();
   return (
     <Toolbar>
       <ToolbarContent>

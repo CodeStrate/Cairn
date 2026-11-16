@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from "react";
+import { useState, type DragEvent, type ReactNode } from "react";
 import { useNavigate, useSearch } from "@tanstack/react-router";
 import { SplitView, toast } from "@glaze/core/components";
 
@@ -42,6 +42,7 @@ export function HomeView() {
   const setHarnessEnabled = useSetHarnessEnabled();
   const setProjectHidden = useSetProjectHidden();
   const [action, setAction] = useState<LibraryAction | null>(null);
+  const [fileDragOver, setFileDragOver] = useState(false);
   useLibraryUpdates();
 
   const update = (patch: Partial<HomeSearch>) => {
@@ -112,6 +113,54 @@ export function HomeView() {
     );
   };
 
+  // Finder → Wefty: a dropped session/memory file selects it; a project folder scopes to it.
+  // Drags over a drop target (the terminal dock) are left to it.
+  const isFileDrag = (event: DragEvent) =>
+    event.dataTransfer.types.includes("Files") &&
+    !(event.target as Element).closest?.("[data-drop-target]");
+  const handleFileDragOver = (event: DragEvent) => {
+    if (!isFileDrag(event)) {
+      setFileDragOver(false);
+      return;
+    }
+    event.preventDefault();
+    event.dataTransfer.dropEffect = "copy";
+    setFileDragOver(true);
+  };
+  const handleFileDrop = async (event: DragEvent) => {
+    if (!isFileDrag(event)) return;
+    event.preventDefault();
+    setFileDragOver(false);
+    const paths = [...event.dataTransfer.files]
+      .map((file) => window.glazeAPI.webUtils.getPathForFile(file))
+      .filter(Boolean);
+    if (paths.length === 0) {
+      toast.error("Couldn't read the dropped file's location");
+      return;
+    }
+    for (const filePath of paths) {
+      try {
+        const match = await matchPath(filePath);
+        if (match.kind === "item") {
+          const inScope = items.some((item) => item.id === match.id);
+          update({ sel: match.id, ...(inScope ? {} : { scope: "all", q: "" }) });
+          return;
+        }
+        if (match.kind === "project") {
+          update({ scope: projectScope(match.path), sel: undefined });
+          return;
+        }
+      } catch (error) {
+        toast.error(`Couldn't open ${filePath}: ${errorMessage(error)}`);
+        return;
+      }
+    }
+    toast.error(
+      paths.length === 1 ? "That file isn't part of your library" : "None of those files are in your library",
+      { description: "Drop a session transcript, a memory file, or a project folder Wefty already knows." },
+    );
+  };
+
   const closeDetail = () => update({ sel: undefined });
   const selectItem = (id: string | null) => update({ sel: id ?? undefined });
   const requestTrash = (item: LibraryItem) => setAction({ kind: "trash-item", item });
@@ -142,7 +191,14 @@ export function HomeView() {
   }
 
   return (
-    <>
+    <div
+      className="relative h-full"
+      onDragOver={handleFileDragOver}
+      onDragLeave={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setFileDragOver(false);
+      }}
+      onDrop={(event) => void handleFileDrop(event)}
+    >
       <SplitView
         storageKey="cairn"
         className="h-full"
@@ -212,6 +268,11 @@ export function HomeView() {
           }}
         />
       ) : null}
-    </>
+      {fileDragOver ? (
+        <div className="pointer-events-none absolute inset-2 z-40 flex items-center justify-center rounded-xl border-2 border-dashed border-accent bg-window-bg/70">
+          <span className="rounded-md bg-window-bg px-3 py-1.5 text-sm">Drop to open in Wefty</span>
+        </div>
+      ) : null}
+    </div>
   );
 }
