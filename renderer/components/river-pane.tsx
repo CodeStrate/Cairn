@@ -14,6 +14,8 @@ import type { HarnessId, LibraryItem, LibrarySnapshot } from "@main/shared/types
 
 import { HARNESS_ORDER, HARNESS_STYLES, SHARED_STYLE } from "../lib/harness";
 import { buildRiver, packLane, type RiverData, type RiverItem } from "../lib/river-data";
+import { startItemDrag } from "../lib/item-drag";
+import { dragText } from "./item-actions";
 import { HarnessDot } from "./item-visuals";
 
 interface RiverPaneProps {
@@ -165,6 +167,7 @@ export function RiverPane({
   const [hoverId, setHoverId] = useState<string | null>(null);
   const dragRef = useRef<{
     x: number;
+    y: number;
     t0: number;
     k: number;
     moved: boolean;
@@ -293,6 +296,7 @@ export function RiverPane({
     const target = (event.target as Element).closest("[data-id]");
     dragRef.current = {
       x: event.clientX,
+      y: event.clientY,
       t0: view.t0,
       k: view.k,
       moved: false,
@@ -304,7 +308,18 @@ export function RiverPane({
     const drag = dragRef.current;
     if (!drag) return;
     const dx = event.clientX - drag.x;
-    if (!drag.moved && Math.abs(dx) < 4) return;
+    if (!drag.moved && Math.hypot(dx, event.clientY - drag.y) < 4) return;
+    // Dragging an item carries it (e.g. into the terminal); dragging empty space pans.
+    if (drag.id && !drag.moved) {
+      const item = items.find((candidate) => candidate.id === drag.id);
+      const text = item ? dragText(item) : null;
+      dragRef.current = null;
+      if (event.currentTarget.hasPointerCapture(event.pointerId))
+        event.currentTarget.releasePointerCapture(event.pointerId);
+      setHoverId(null);
+      if (item && text) startItemDrag({ text, label: item.title }, event);
+      return;
+    }
     drag.moved = true;
     commitView({ t0: drag.t0 - dx / drag.k, k: drag.k });
   };

@@ -7,6 +7,8 @@ import type { HarnessId, LibraryItem, LibrarySnapshot } from "@main/shared/types
 import { buildGraph, type GraphNode } from "../lib/graph-data";
 import { HARNESS_ORDER, HARNESS_STYLES, SHARED_STYLE } from "../lib/harness";
 import { GraphCanvas, type GraphControls } from "./graph/graph-canvas";
+import { startItemDrag } from "../lib/item-drag";
+import { dragText } from "./item-actions";
 import { HarnessDot } from "./item-visuals";
 
 interface GraphPaneProps {
@@ -89,6 +91,11 @@ export function GraphPane({
         selectedId={selectedId}
         matches={matches}
         onSelectNode={handleSelectNode}
+        onDragOutNode={(node, event) => {
+          const item = node.itemId ? items.find((candidate) => candidate.id === node.itemId) : null;
+          const text = item ? dragText(item) : null;
+          if (item && text) startItemDrag({ text, label: item.title }, event);
+        }}
         controlsRef={controlsRef}
       />
       <div className="absolute inset-x-0 top-0">{toolbar}</div>

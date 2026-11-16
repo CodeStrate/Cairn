@@ -101,6 +101,8 @@ export class GraphEngine {
   private selectedId: string | null = null;
   private matches: Set<string> | null = null;
   private drag: DragState | null = null;
+  /** Called when a node is dragged past the canvas edge, to hand it to an app-level drag. */
+  private onDragOut: ((node: GraphNode, event: PointerEvent) => void) | null = null;
 
   constructor(
     canvas: HTMLCanvasElement,
@@ -461,6 +463,10 @@ export class GraphEngine {
     this.schedule();
   };
 
+  setDragOut(handler: ((node: GraphNode, event: PointerEvent) => void) | null): void {
+    this.onDragOut = handler;
+  }
+
   private readonly handlePointerDown = (event: PointerEvent): void => {
     if (event.button !== 0) return;
     const point = this.localPoint(event);
@@ -490,6 +496,23 @@ export class GraphEngine {
       if (!drag.moved && Math.hypot(dx, dy) < DRAG_THRESHOLD) return;
       drag.moved = true;
       if (drag.mode === "node") {
+        const rect = this.canvas.getBoundingClientRect();
+        const outside =
+          event.clientX < rect.left ||
+          event.clientX > rect.right ||
+          event.clientY < rect.top ||
+          event.clientY > rect.bottom;
+        if (outside && this.onDragOut && drag.node.data.itemId) {
+          this.drag = null;
+          if (this.canvas.hasPointerCapture(event.pointerId))
+            this.canvas.releasePointerCapture(event.pointerId);
+          drag.node.fx = null;
+          drag.node.fy = null;
+          this.simulation.alphaTarget(0);
+          this.canvas.style.cursor = "default";
+          this.onDragOut(drag.node.data, event);
+          return;
+        }
         const world = this.toWorld(point);
         drag.node.fx = world.x;
         drag.node.fy = world.y;

@@ -37,6 +37,8 @@ interface GraphCanvasProps {
   selectedId: string | null;
   matches: Set<string> | null;
   onSelectNode: (node: GraphNode) => void;
+  /** A node dragged past the canvas edge; start an app-level drag from here. */
+  onDragOutNode?: (node: GraphNode, event: PointerEvent) => void;
   controlsRef: MutableRefObject<GraphControls | null>;
   className?: string;
 }
@@ -46,6 +48,7 @@ export function GraphCanvas({
   selectedId,
   matches,
   onSelectNode,
+  onDragOutNode,
   controlsRef,
   className,
 }: GraphCanvasProps) {
@@ -53,9 +56,11 @@ export function GraphCanvas({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const engineRef = useRef<GraphEngine | null>(null);
   const onSelectRef = useRef(onSelectNode);
+  const onDragOutRef = useRef(onDragOutNode);
 
   useEffect(() => {
     onSelectRef.current = onSelectNode;
+    onDragOutRef.current = onDragOutNode;
   });
 
   useEffect(() => {
@@ -65,6 +70,7 @@ export function GraphCanvas({
     const engine = new GraphEngine(canvas, container, readPalette(container), (node) =>
       onSelectRef.current(node),
     );
+    engine.setDragOut((node, event) => onDragOutRef.current?.(node, event));
     engineRef.current = engine;
     controlsRef.current = engine;
 
