@@ -2,10 +2,12 @@ import { useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import type {
+  HandoffResult,
   HarnessId,
   LibrarySnapshot,
   MemoryDetail,
   MemorySummary,
+  PathMatch,
   SessionDetail,
   TrashResult,
 } from "@main/shared/types";
@@ -131,4 +133,13 @@ export function revealInFinder(path: string): Promise<void> {
 
 export function copyText(text: string): Promise<void> {
   return ipc().invoke<void>("item:copyText", { text });
+}
+
+/** Writes (or refreshes) the session's handoff brief and returns its Markdown and file path. */
+export function getHandoff(id: string): Promise<HandoffResult> {
+  return ipc().invoke<HandoffResult>("handoff:get", { id });
+}
+
+export function matchPath(path: string): Promise<PathMatch> {
+  return ipc().invoke<PathMatch>("path:match", { path });
 }

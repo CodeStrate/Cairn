@@ -1,10 +1,12 @@
 import { app, clipboard, ipcMain, shell } from "@glaze/core/backend";
 
 import {
+  getHandoff,
   getLibrary,
   getMemoryDetail,
   getSessionDetail,
   isKnownPath,
+  matchPath,
   renameProject,
   saveMemory,
   setHarnessEnabled,
@@ -49,6 +51,16 @@ export function registerLibraryHandlers(): void {
 
   ipcMain.handle("session:get", async (_event, params: unknown) => {
     return getSessionDetail(requireString(params, "id", "session:get"));
+  });
+
+  ipcMain.handle("handoff:get", async (_event, params: unknown) => {
+    return getHandoff(requireString(params, "id", "handoff:get"));
+  });
+
+  ipcMain.handle("path:match", async (_event, params: unknown) => {
+    const target = requireString(params, "path", "path:match");
+    if (!isAbsolutePath(target)) throw new Error('path:match: "path" must be absolute');
+    return matchPath(target);
   });
 
   ipcMain.handle("memory:get", async (_event, params: unknown) => {

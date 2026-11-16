@@ -121,3 +121,16 @@ export interface MemoryDetail {
   memory: MemorySummary;
   content: string;
 }
+
+export interface HandoffResult {
+  sessionId: string;
+  /** Markdown file under the app's userData, safe to hand to any agent as a path. */
+  path: string;
+  markdown: string;
+}
+
+/** What a path dropped from Finder refers to in the library, if anything. */
+export type PathMatch =
+  | { kind: "item"; id: string }
+  | { kind: "project"; path: string }
+  | { kind: "none" };

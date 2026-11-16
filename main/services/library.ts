@@ -1,14 +1,16 @@
 import * as fs from "fs";
 import * as path from "path";
 
-import { ipcMain, logger, shell } from "@glaze/core/backend";
+import { app, ipcMain, logger, shell } from "@glaze/core/backend";
 
 import {
   HARNESS_IDS,
+  type HandoffResult,
   type HarnessId,
   type LibrarySnapshot,
   type MemoryDetail,
   type MemorySummary,
+  type PathMatch,
   type ProjectSummary,
   type ScanError,
   type SessionDetail,
@@ -38,6 +40,7 @@ import {
   readOpencodeSession,
   scanOpencode,
 } from "./harnesses/opencode.js";
+import { buildHandoff, handoffFileName } from "./handoff.js";
 import { scanProjectMemories } from "./memory-files.js";
 import { isAbsolutePath } from "./platform.js";
 import { getPreferences, updatePreferences, type Preferences } from "./preferences.js";
@@ -434,6 +437,34 @@ export async function trashProject(projectPath: string): Promise<TrashResult> {
   }
   if (paths.length === 0) throw new Error("Nothing in this project can be moved to the Trash");
   return trashPaths(paths);
+}
+
+/** Writes the session's handoff brief under userData/handoffs and returns it. */
+export async function getHandoff(id: string): Promise<HandoffResult> {
+  const detail = await getSessionDetail(id);
+  const library = await getLibrary();
+  const { session } = detail;
+  const memories = library.memories.filter(
+    (memory) => session.filesTouched.includes(memory.path) || memory.sessionId === session.id,
+  );
+  const markdown = buildHandoff(detail, memories);
+  const dir = path.join(app.getPath("userData"), "handoffs");
+  await fs.promises.mkdir(dir, { recursive: true });
+  const file = path.join(dir, handoffFileName(session.id));
+  await writeFileAtomic(file, markdown);
+  return { sessionId: session.id, path: file, markdown };
+}
+
+/** Maps a path dropped from Finder onto a library item or project. */
+export async function matchPath(target: string): Promise<PathMatch> {
+  const library = await getLibrary();
+  const session = library.sessions.find((candidate) => candidate.sourcePath === target);
+  if (session) return { kind: "item", id: session.id };
+  const memory = library.memories.find((candidate) => candidate.path === target);
+  if (memory) return { kind: "item", id: memory.id };
+  const project = library.projects.find((candidate) => candidate.path === target);
+  if (project) return { kind: "project", path: project.path };
+  return { kind: "none" };
 }
 
 /** Only paths the library already knows about may be revealed in Finder. */
