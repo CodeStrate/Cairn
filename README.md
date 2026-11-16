@@ -25,6 +25,11 @@ Only Claude Code is scanned by default. Add other harnesses from the **+** next 
 
 Cairn never sends your data anywhere. Everything is read from and written to local files.
 
+## Contributing
+
+- [docs/PROJECT.md](docs/PROJECT.md) — architecture, data contract, IPC, conventions.
+- [docs/HANDOFF.md](docs/HANDOFF.md) — current status and the plan for the next phases.
+
 ## Project layout
 
 ```
