@@ -8,13 +8,16 @@ import { MemoryDetailPane } from "../components/detail/memory-detail";
 import { SessionDetailPane } from "../components/detail/session-detail";
 import { errorMessage } from "../components/detail/detail-parts";
 import { AppSidebar } from "../components/app-sidebar";
+import { GraphPane } from "../components/graph-pane";
 import { LibraryDialogs, type LibraryAction } from "../components/library-dialogs";
 import { ListPane } from "../components/list-pane";
 import { PrimaryToolbar } from "../components/primary-toolbar";
 import { RiverPane } from "../components/river-pane";
+import { TerminalDock } from "../components/terminal/terminal-dock";
 import { plural } from "../lib/format";
 import { HARNESS_STYLES } from "../lib/harness";
 import {
+  matchPath,
   useLibrary,
   useLibraryUpdates,
   useRescanLibrary,
@@ -160,28 +163,43 @@ export function HomeView() {
         inspector={inspector}
         inspectorSize={{ default: 460, min: 340 }}
       >
-        {search.view === "graph" ? (
-          <RiverPane
-            toolbar={toolbar}
-            library={data}
-            items={items}
-            query={search.q}
-            selectedId={selected?.id ?? null}
-            onSelect={selectItem}
-            onOpenProject={(projectPath) => update({ scope: projectScope(projectPath) })}
-          />
-        ) : (
-          <ListPane
-            toolbar={toolbar}
-            library={data}
-            items={filtered}
-            loading={library.isPending}
-            query={search.q}
-            selectedId={selected?.id ?? null}
-            onSelect={selectItem}
-            onRequestTrash={requestTrash}
-          />
-        )}
+        <div className="flex h-full min-h-0">
+          <div className="relative h-full min-w-0 flex-1">
+            {search.view === "graph" ? (
+              <GraphPane
+                toolbar={toolbar}
+                library={data}
+                items={items}
+                query={search.q}
+                selectedId={selected?.id ?? null}
+                onSelect={selectItem}
+                onOpenProject={(projectPath) => update({ scope: projectScope(projectPath) })}
+              />
+            ) : search.view === "river" ? (
+              <RiverPane
+                toolbar={toolbar}
+                library={data}
+                items={items}
+                query={search.q}
+                selectedId={selected?.id ?? null}
+                onSelect={selectItem}
+                onOpenProject={(projectPath) => update({ scope: projectScope(projectPath) })}
+              />
+            ) : (
+              <ListPane
+                toolbar={toolbar}
+                library={data}
+                items={filtered}
+                loading={library.isPending}
+                query={search.q}
+                selectedId={selected?.id ?? null}
+                onSelect={selectItem}
+                onRequestTrash={requestTrash}
+              />
+            )}
+          </div>
+          <TerminalDock />
+        </div>
       </SplitView>
       {data ? (
         <LibraryDialogs
