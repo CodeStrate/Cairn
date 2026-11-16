@@ -16,7 +16,8 @@ export function parseScope(value: string): Scope {
     const harness = value.slice("harness:".length);
     if (isHarnessId(harness)) return { kind: "harness", harness };
   }
-  if (value.startsWith("project:")) return { kind: "project", path: value.slice("project:".length) };
+  if (value.startsWith("project:"))
+    return { kind: "project", path: value.slice("project:".length) };
   return { kind: "all" };
 }
 
@@ -33,7 +34,9 @@ function inScope(item: LibraryItem, scope: Scope): boolean {
     case "memories":
       return item.kind === "memory";
     case "harness":
-      return item.kind === "session" ? item.harness === scope.harness : item.harnesses.includes(scope.harness);
+      return item.kind === "session"
+        ? item.harness === scope.harness
+        : item.harnesses.includes(scope.harness);
     case "project":
       return item.cwd === scope.path;
   }
@@ -55,7 +58,10 @@ export function scopeTitle(scope: Scope, library: LibrarySnapshot | undefined): 
     case "harness":
       return HARNESS_STYLES[scope.harness].name;
     case "project":
-      return library?.projects.find((project) => project.path === scope.path)?.name ?? baseName(scope.path);
+      return (
+        library?.projects.find((project) => project.path === scope.path)?.name ??
+        baseName(scope.path)
+      );
   }
 }
 

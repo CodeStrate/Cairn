@@ -100,7 +100,8 @@ export function buildGraph(items: LibraryItem[], library: LibrarySnapshot): Grap
   }
 
   for (const node of nodes.values()) {
-    if (node.type === "hub") node.radius = 6 + Math.min(9, Math.sqrt(degree.get(node.id) ?? 0) * 1.6);
+    if (node.type === "hub")
+      node.radius = 6 + Math.min(9, Math.sqrt(degree.get(node.id) ?? 0) * 1.6);
   }
 
   return { nodes: [...nodes.values()], links };

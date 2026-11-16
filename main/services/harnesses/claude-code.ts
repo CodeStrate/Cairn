@@ -29,7 +29,8 @@ const MAX_ENTRY_CHARS = 12_000;
 
 const summaryCache = new StatCache<SessionSummary | null>(4000);
 
-const NOISE = /^(<local-command-|<bash-(input|stdout|stderr)>|<task-notification>|<user-prompt-submit-hook>|Caveat: |\[Request interrupted)/;
+const NOISE =
+  /^(<local-command-|<bash-(input|stdout|stderr)>|<task-notification>|<user-prompt-submit-hook>|Caveat: |\[Request interrupted)/;
 
 interface UserPrompt {
   text: string;
@@ -121,7 +122,11 @@ async function summarize(file: string, stat: fs.Stats): Promise<SessionSummary |
           assistantIds.add(id);
           state.messageCount++;
         }
-      } else if (part.type === "tool_use" && isRecord(part.input) && files.size < MAX_FILES_TOUCHED) {
+      } else if (
+        part.type === "tool_use" &&
+        isRecord(part.input) &&
+        files.size < MAX_FILES_TOUCHED
+      ) {
         const touched = toolFilePath(part.input);
         if (touched) files.add(touched);
       }
@@ -204,7 +209,10 @@ async function scanMemoryFolder(memoryDir: string, cwd: string): Promise<MemoryS
   return memories;
 }
 
-export async function scanClaudeCode(): Promise<{ sessions: SessionSummary[]; memories: MemorySummary[] }> {
+export async function scanClaudeCode(): Promise<{
+  sessions: SessionSummary[];
+  memories: MemorySummary[];
+}> {
   const sessions: SessionSummary[] = [];
   const memories: MemorySummary[] = [];
 
@@ -272,7 +280,11 @@ export async function readClaudeSession(session: SessionSummary): Promise<Transc
         if (last?.role === "assistant" && messageId && lastAssistantId === messageId) {
           last.text = truncate(`${last.text}\n\n${part.text}`, MAX_ENTRY_CHARS);
         } else {
-          entries.push({ id: String(entries.length), role: "assistant", text: truncate(part.text, MAX_ENTRY_CHARS) });
+          entries.push({
+            id: String(entries.length),
+            role: "assistant",
+            text: truncate(part.text, MAX_ENTRY_CHARS),
+          });
         }
         lastAssistantId = messageId;
       } else if (part.type === "tool_use") {

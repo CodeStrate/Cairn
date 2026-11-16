@@ -72,7 +72,9 @@ app.on("window-all-closed", () => {});
 app.on("activate", (hasVisibleWindows) => {
   if (hasVisibleWindows) return;
   if (!mainWindow || mainWindow.isDestroyed()) {
-    createMainWindow().catch((error) => logger.error("main", "Failed to create main window", error));
+    createMainWindow().catch((error) =>
+      logger.error("main", "Failed to create main window", error),
+    );
   } else {
     mainWindow.show();
   }

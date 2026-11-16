@@ -42,14 +42,26 @@ function LegendEntry({ glyph, label }: { glyph: ReactNode; label: string }) {
   );
 }
 
-export function GraphPane({ toolbar, library, items, query, selectedId, onSelect, onOpenProject }: GraphPaneProps) {
+export function GraphPane({
+  toolbar,
+  library,
+  items,
+  query,
+  selectedId,
+  onSelect,
+  onOpenProject,
+}: GraphPaneProps) {
   const controlsRef = useRef<GraphControls | null>(null);
   const graph = library ? buildGraph(items, library) : { nodes: [], links: [] };
 
   const terms = query.toLowerCase().split(/\s+/).filter(Boolean);
   const matches =
     terms.length > 0
-      ? new Set(graph.nodes.filter((node) => terms.every((term) => node.searchText.includes(term))).map((node) => node.id))
+      ? new Set(
+          graph.nodes
+            .filter((node) => terms.every((term) => node.searchText.includes(term)))
+            .map((node) => node.id),
+        )
       : null;
 
   const harnessesPresent = new Set<HarnessId>();
@@ -91,23 +103,52 @@ export function GraphPane({ toolbar, library, items, query, selectedId, onSelect
       {items.length > 0 ? (
         <div className="pointer-events-none absolute bottom-3 left-4 flex max-w-[70%] flex-wrap items-center gap-x-4 gap-y-1">
           {HARNESS_ORDER.filter((id) => harnessesPresent.has(id)).map((id) => (
-            <LegendEntry key={id} glyph={<HarnessDot harness={id} />} label={HARNESS_STYLES[id].name} />
+            <LegendEntry
+              key={id}
+              glyph={<HarnessDot harness={id} />}
+              label={HARNESS_STYLES[id].name}
+            />
           ))}
-          {hasShared ? <LegendEntry glyph={<HarnessDot color={SHARED_STYLE.color} />} label="Shared" /> : null}
+          {hasShared ? (
+            <LegendEntry glyph={<HarnessDot color={SHARED_STYLE.color} />} label="Shared" />
+          ) : null}
           <LegendEntry glyph={<ShapeGlyph shape="circle" />} label="Session" />
           <LegendEntry glyph={<ShapeGlyph shape="diamond" />} label="Memory" />
-          {hasGenerated ? <LegendEntry glyph={<ShapeGlyph shape="hollow" />} label="Generated" /> : null}
+          {hasGenerated ? (
+            <LegendEntry glyph={<ShapeGlyph shape="hollow" />} label="Generated" />
+          ) : null}
         </div>
       ) : null}
 
       <div className="absolute right-3 bottom-3 flex items-center gap-1">
-        <Button variant="glass" size="small" iconOnly aria-label="Zoom out" title="Zoom out" onClick={() => controlsRef.current?.zoomOut()}>
+        <Button
+          variant="glass"
+          size="small"
+          iconOnly
+          aria-label="Zoom out"
+          title="Zoom out"
+          onClick={() => controlsRef.current?.zoomOut()}
+        >
           <Minus />
         </Button>
-        <Button variant="glass" size="small" iconOnly aria-label="Zoom in" title="Zoom in" onClick={() => controlsRef.current?.zoomIn()}>
+        <Button
+          variant="glass"
+          size="small"
+          iconOnly
+          aria-label="Zoom in"
+          title="Zoom in"
+          onClick={() => controlsRef.current?.zoomIn()}
+        >
           <Plus />
         </Button>
-        <Button variant="glass" size="small" iconOnly aria-label="Fit graph" title="Fit graph" onClick={() => controlsRef.current?.fit()}>
+        <Button
+          variant="glass"
+          size="small"
+          iconOnly
+          aria-label="Fit graph"
+          title="Fit graph"
+          onClick={() => controlsRef.current?.fit()}
+        >
           <Maximize />
         </Button>
       </div>

@@ -21,7 +21,10 @@ import {
 } from "../util.js";
 
 export const CODEX_ROOT = path.join(HOME, ".codex");
-export const CODEX_SESSION_DIRS = [path.join(CODEX_ROOT, "sessions"), path.join(CODEX_ROOT, "archived_sessions")];
+export const CODEX_SESSION_DIRS = [
+  path.join(CODEX_ROOT, "sessions"),
+  path.join(CODEX_ROOT, "archived_sessions"),
+];
 
 const MAX_FILES_TOUCHED = 40;
 const MAX_ENTRIES = 3000;
@@ -43,7 +46,8 @@ function contentText(content: unknown): string {
 function isInjected(text: string): boolean {
   const trimmed = text.trim();
   return (
-    trimmed.startsWith("# AGENTS.md instructions") || /^<([a-z_]+)[^>]*>[\s\S]*<\/\1>$/.test(trimmed)
+    trimmed.startsWith("# AGENTS.md instructions") ||
+    /^<([a-z_]+)[^>]*>[\s\S]*<\/\1>$/.test(trimmed)
   );
 }
 
@@ -138,7 +142,9 @@ async function summarize(file: string, stat: fs.Stats): Promise<SessionSummary |
     model: state.model,
     filesTouched: [...files],
     sourcePath: file,
-    resumeCommand: state.cwd ? `cd ${shellQuote(state.cwd)} && codex resume ${nativeId}` : `codex resume ${nativeId}`,
+    resumeCommand: state.cwd
+      ? `cd ${shellQuote(state.cwd)} && codex resume ${nativeId}`
+      : `codex resume ${nativeId}`,
   };
 }
 
@@ -220,7 +226,10 @@ export async function readCodexMemory(memoryPath: string): Promise<string> {
   return summary ? `${memory}\n\n---\n\n## Thread summary\n\n${summary}` : memory;
 }
 
-export async function scanCodex(): Promise<{ sessions: SessionSummary[]; memories: MemorySummary[] }> {
+export async function scanCodex(): Promise<{
+  sessions: SessionSummary[];
+  memories: MemorySummary[];
+}> {
   const names = await readThreadNames();
   const sessions: SessionSummary[] = [];
   for (const dir of CODEX_SESSION_DIRS) {
@@ -257,9 +266,17 @@ export async function readCodexSession(session: SessionSummary): Promise<Transcr
       const text = contentText(payload.content).trim();
       if (!text) return;
       if (payload.role === "user" && !isInjected(text)) {
-        entries.push({ id: String(entries.length), role: "user", text: truncate(text, MAX_ENTRY_CHARS) });
+        entries.push({
+          id: String(entries.length),
+          role: "user",
+          text: truncate(text, MAX_ENTRY_CHARS),
+        });
       } else if (payload.role === "assistant") {
-        entries.push({ id: String(entries.length), role: "assistant", text: truncate(text, MAX_ENTRY_CHARS) });
+        entries.push({
+          id: String(entries.length),
+          role: "assistant",
+          text: truncate(text, MAX_ENTRY_CHARS),
+        });
       }
     } else if (payload.type === "function_call") {
       let args: unknown = payload.arguments;

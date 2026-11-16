@@ -54,7 +54,9 @@ function blockEntries(body: string): TranscriptEntry[] {
       flush();
       role = lineRole;
     }
-    buffer.push(lineRole === "user" ? line.slice(5) : lineRole === "tool" ? line.replace(/^> ?/, "") : line);
+    buffer.push(
+      lineRole === "user" ? line.slice(5) : lineRole === "tool" ? line.replace(/^> ?/, "") : line,
+    );
   }
   flush();
   return entries;

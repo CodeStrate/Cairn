@@ -3,8 +3,15 @@ const HOUR = 60 * MINUTE;
 const DAY = 24 * HOUR;
 
 const dateFormatter = new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric" });
-const dateYearFormatter = new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric", year: "numeric" });
-const dateTimeFormatter = new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" });
+const dateYearFormatter = new Intl.DateTimeFormat(undefined, {
+  month: "short",
+  day: "numeric",
+  year: "numeric",
+});
+const dateTimeFormatter = new Intl.DateTimeFormat(undefined, {
+  dateStyle: "medium",
+  timeStyle: "short",
+});
 
 function startOfDay(timestamp: number): number {
   const date = new Date(timestamp);

@@ -20,7 +20,10 @@ export interface MarkdownMemoryOptions {
 }
 
 /** Reads a Markdown context/memory file into a summary, resolving its links to other memory ids. */
-export async function readMarkdownMemory(file: string, options: MarkdownMemoryOptions): Promise<MemorySummary | null> {
+export async function readMarkdownMemory(
+  file: string,
+  options: MarkdownMemoryOptions,
+): Promise<MemorySummary | null> {
   const stat = await statOrNull(file);
   if (!stat?.isFile() || stat.size > MAX_MEMORY_BYTES) return null;
   let content: string;
@@ -41,7 +44,11 @@ export async function readMarkdownMemory(file: string, options: MarkdownMemoryOp
     harnesses: options.harnesses,
     memoryType: options.memoryType,
     scope: options.scope,
-    title: options.title ?? data.name ?? (options.memoryType === "memory" ? heading : undefined) ?? path.basename(file),
+    title:
+      options.title ??
+      data.name ??
+      (options.memoryType === "memory" ? heading : undefined) ??
+      path.basename(file),
     description: oneLine(data.description ?? options.description ?? firstLine ?? "", 200),
     path: file,
     cwd: options.cwd,

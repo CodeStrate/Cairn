@@ -41,7 +41,14 @@ interface GraphCanvasProps {
   className?: string;
 }
 
-export function GraphCanvas({ graph, selectedId, matches, onSelectNode, controlsRef, className }: GraphCanvasProps) {
+export function GraphCanvas({
+  graph,
+  selectedId,
+  matches,
+  onSelectNode,
+  controlsRef,
+  className,
+}: GraphCanvasProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const engineRef = useRef<GraphEngine | null>(null);
@@ -55,7 +62,9 @@ export function GraphCanvas({ graph, selectedId, matches, onSelectNode, controls
     const canvas = canvasRef.current;
     const container = containerRef.current;
     if (!canvas || !container) return;
-    const engine = new GraphEngine(canvas, container, readPalette(container), (node) => onSelectRef.current(node));
+    const engine = new GraphEngine(canvas, container, readPalette(container), (node) =>
+      onSelectRef.current(node),
+    );
     engineRef.current = engine;
     controlsRef.current = engine;
 
@@ -63,7 +72,10 @@ export function GraphCanvas({ graph, selectedId, matches, onSelectNode, controls
     const media = window.matchMedia("(prefers-color-scheme: dark)");
     media.addEventListener("change", refreshPalette);
     const observer = new MutationObserver(refreshPalette);
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class", "style", "data-theme"] });
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class", "style", "data-theme"],
+    });
 
     return () => {
       media.removeEventListener("change", refreshPalette);
@@ -88,7 +100,12 @@ export function GraphCanvas({ graph, selectedId, matches, onSelectNode, controls
 
   return (
     <div ref={containerRef} className={cn("overflow-hidden", className)}>
-      <canvas ref={canvasRef} className="absolute inset-0 touch-none" aria-label="Context graph" role="img" />
+      <canvas
+        ref={canvasRef}
+        className="absolute inset-0 touch-none"
+        aria-label="Context graph"
+        role="img"
+      />
     </div>
   );
 }

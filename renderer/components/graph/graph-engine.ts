@@ -33,7 +33,14 @@ interface SimLink extends SimulationLinkDatum<SimNode> {
 
 type DragState =
   | { mode: "node"; node: SimNode; startX: number; startY: number; moved: boolean }
-  | { mode: "pan"; startX: number; startY: number; originX: number; originY: number; moved: boolean };
+  | {
+      mode: "pan";
+      startX: number;
+      startY: number;
+      originX: number;
+      originY: number;
+      moved: boolean;
+    };
 
 interface Point {
   x: number;
@@ -248,12 +255,19 @@ export class GraphEngine {
     const padding = 56;
     const availableHeight = this.height - TOOLBAR_INSET - BOTTOM_INSET;
     const k = clamp(
-      Math.min((this.width - padding * 2) / Math.max(maxX - minX, 1), (availableHeight - padding) / Math.max(maxY - minY, 1)),
+      Math.min(
+        (this.width - padding * 2) / Math.max(maxX - minX, 1),
+        (availableHeight - padding) / Math.max(maxY - minY, 1),
+      ),
       MIN_ZOOM,
       2,
     );
     const centerY = TOOLBAR_INSET + availableHeight / 2;
-    this.transform = { k, x: this.width / 2 - ((minX + maxX) / 2) * k, y: centerY - ((minY + maxY) / 2) * k };
+    this.transform = {
+      k,
+      x: this.width / 2 - ((minX + maxX) / 2) * k,
+      y: centerY - ((minY + maxY) / 2) * k,
+    };
     this.schedule();
   }
 
@@ -362,7 +376,8 @@ export class GraphEngine {
     ctx.translate(x, y);
     ctx.scale(k, k);
 
-    const focusId = this.drag?.mode === "node" ? this.drag.node.id : (this.hoverId ?? this.selectedId);
+    const focusId =
+      this.drag?.mode === "node" ? this.drag.node.id : (this.hoverId ?? this.selectedId);
     const focus = focusId ? (this.neighbors.get(focusId) ?? new Set<string>()) : null;
     const isFocused = (id: string) => !focus || id === focusId || focus.has(id);
     const isMatched = (id: string) => !this.matches || this.matches.has(id);
@@ -371,7 +386,12 @@ export class GraphEngine {
     for (const link of this.links) {
       const source = this.endpoint(link.source);
       const target = this.endpoint(link.target);
-      if (source?.x === undefined || source.y === undefined || target?.x === undefined || target.y === undefined) {
+      if (
+        source?.x === undefined ||
+        source.y === undefined ||
+        target?.x === undefined ||
+        target.y === undefined
+      ) {
         continue;
       }
       const active = focusId !== null && (source.id === focusId || target.id === focusId);
@@ -417,7 +437,11 @@ export class GraphEngine {
       if (node.x === undefined || node.y === undefined) continue;
       const isHub = node.data.type === "hub";
       const show =
-        isHub || k >= LABEL_ZOOM || node.id === focusId || node.id === this.selectedId || (focus?.has(node.id) ?? false);
+        isHub ||
+        k >= LABEL_ZOOM ||
+        node.id === focusId ||
+        node.id === this.selectedId ||
+        (focus?.has(node.id) ?? false);
       if (!show) continue;
       const dim = !isFocused(node.id) || !isMatched(node.id);
       ctx.globalAlpha = dim ? 0.25 : 1;
@@ -487,7 +511,8 @@ export class GraphEngine {
   private readonly handlePointerUp = (event: PointerEvent): void => {
     const drag = this.drag;
     this.drag = null;
-    if (this.canvas.hasPointerCapture(event.pointerId)) this.canvas.releasePointerCapture(event.pointerId);
+    if (this.canvas.hasPointerCapture(event.pointerId))
+      this.canvas.releasePointerCapture(event.pointerId);
     this.canvas.style.cursor = this.hoverId ? "pointer" : "default";
     if (drag?.mode !== "node") return;
     drag.node.fx = null;
@@ -508,7 +533,11 @@ export class GraphEngine {
     if (event.ctrlKey || event.metaKey) {
       this.zoomAt(this.localPoint(event), Math.exp(-event.deltaY * 0.01));
     } else {
-      this.transform = { ...this.transform, x: this.transform.x - event.deltaX, y: this.transform.y - event.deltaY };
+      this.transform = {
+        ...this.transform,
+        x: this.transform.x - event.deltaX,
+        y: this.transform.y - event.deltaY,
+      };
       this.schedule();
     }
   };

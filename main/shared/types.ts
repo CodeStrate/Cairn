@@ -5,7 +5,13 @@
 
 export type HarnessId = "claude-code" | "codex" | "cursor" | "opencode" | "aider";
 
-export const HARNESS_IDS: readonly HarnessId[] = ["claude-code", "codex", "cursor", "opencode", "aider"];
+export const HARNESS_IDS: readonly HarnessId[] = [
+  "claude-code",
+  "codex",
+  "cursor",
+  "opencode",
+  "aider",
+];
 
 export interface HarnessInfo {
   id: HarnessId;

@@ -64,7 +64,8 @@ export function useMemoryDetail(id: string) {
 export function useSaveMemory() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (input: { id: string; content: string }) => ipc().invoke<MemorySummary>("memory:save", input),
+    mutationFn: (input: { id: string; content: string }) =>
+      ipc().invoke<MemorySummary>("memory:save", input),
     onSuccess: async (_memory, input) => {
       await queryClient.invalidateQueries({ queryKey: ["memory", input.id] });
       void queryClient.invalidateQueries({ queryKey: LIBRARY_KEY });
@@ -88,21 +89,24 @@ function useLibraryMutation<Input, Result>(
 
 export function useSetHarnessEnabled() {
   return useLibraryMutation(
-    (input: { id: HarnessId; enabled: boolean }) => ipc().invoke<LibrarySnapshot>("harness:setEnabled", input),
+    (input: { id: HarnessId; enabled: boolean }) =>
+      ipc().invoke<LibrarySnapshot>("harness:setEnabled", input),
     (library) => library,
   );
 }
 
 export function useRenameProject() {
   return useLibraryMutation(
-    (input: { path: string; name: string | null }) => ipc().invoke<LibrarySnapshot>("project:rename", input),
+    (input: { path: string; name: string | null }) =>
+      ipc().invoke<LibrarySnapshot>("project:rename", input),
     (library) => library,
   );
 }
 
 export function useSetProjectHidden() {
   return useLibraryMutation(
-    (input: { path: string; hidden: boolean }) => ipc().invoke<LibrarySnapshot>("project:setHidden", input),
+    (input: { path: string; hidden: boolean }) =>
+      ipc().invoke<LibrarySnapshot>("project:setHidden", input),
     (library) => library,
   );
 }
