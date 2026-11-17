@@ -1,3 +1,5 @@
+import type { ViewMode } from "../../lib/search";
+
 /**
  * The guided tour. Each step points at an element marked `data-tour="<target>"`; a step
  * whose target isn't on screen (or has no target) shows as a centred card instead, so the
@@ -5,6 +7,8 @@
  */
 export interface TourStep {
   target?: string;
+  /** Switch to this view before showing the step. */
+  currentviewMode?: ViewMode;
   title: string;
   body: string;
 }
@@ -26,8 +30,21 @@ export const TOUR_STEPS: TourStep[] = [
   },
   {
     target: "main",
-    title: "Reading the timeline",
-    body: "Bars are sessions from first to last message; diamonds are memory files at their last edit. Hover to light up related items, click to open one. Drag empty space or scroll sideways to pan, ⌘-scroll to zoom.",
+    currentviewMode: "river",
+    title: "Timeline",
+    body: "One lane per project, newest activity on top. Bars are sessions, from first to last message, coloured by harness; diamonds are memory files at their last edit (hollow ones were written by an agent). Hover to light up related items, click to open one. Drag empty space or scroll sideways to pan, ⌘-scroll or pinch to zoom, and Fit to reset.",
+  },
+  {
+    target: "main",
+    currentviewMode: "graph",
+    title: "Graph",
+    body: "Each project is a grey hub with its sessions (circles) and memories (diamonds) around it; Global memories gather on their own hub. Dashed links join memories that reference each other and sessions that read or wrote a memory. Drag nodes to untangle, click a hub to open that project, scroll to zoom.",
+  },
+  {
+    target: "main",
+    currentviewMode: "list",
+    title: "List",
+    body: "Everything in one column, grouped by date, with project, age, and message count at a glance. Right-click a row to resume it in the terminal, open its folder, copy its path or resume command, reveal it in Finder, or move it to the Trash.",
   },
   {
     target: "search",
@@ -42,7 +59,7 @@ export const TOUR_STEPS: TourStep[] = [
   {
     target: "main",
     title: "Drag and drop",
-    body: "Drag a list row, timeline bar, or graph node (past the canvas edge) onto the terminal to type its path or resume command — nothing runs until you press Enter. Drop a session or memory file from Finder onto Wefty to open it.",
+    body: "Drag a row, timeline bar, or graph node (past the canvas edge) onto the terminal to type its path or resume command — nothing runs until you press Enter. Drop a session or memory file from Finder onto Wefty to open it.",
   },
   {
     target: "main",

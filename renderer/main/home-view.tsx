@@ -36,7 +36,7 @@ import {
   scopeTitle,
   scopedItems,
 } from "../lib/scope";
-import type { HomeSearch } from "../lib/search";
+import type { HomeSearch, ViewMode } from "../lib/search";
 
 export function HomeView() {
   const search = useSearch({ from: "/" });
@@ -50,6 +50,7 @@ export function HomeView() {
   const [helpOpen, setHelpOpen] = useState(false);
   // The tour starts by itself once, on first launch.
   const [tourOpen, setTourOpen] = useState(() => !hasSeenTour());
+  const [viewBeforeTour, setViewBeforeTour] = useState<ViewMode | null>(null);
   useLibraryUpdates();
 
   // Help menu items in the native menu bar (main/index.ts) arrive as notifications.
@@ -69,6 +70,9 @@ export function HomeView() {
   const closeTour = () => {
     markTourSeen();
     setTourOpen(false);
+    // Put the user back on the view they had before the tour switched it.
+    if (viewBeforeTour) update({ view: viewBeforeTour });
+    setViewBeforeTour(null);
   };
 
   const update = (patch: Partial<HomeSearch>) => {
@@ -312,7 +316,16 @@ export function HomeView() {
           }}
         />
       ) : null}
-      {tourOpen && data ? <TourOverlay steps={TOUR_STEPS} onClose={closeTour} /> : null}
+      {tourOpen && data ? (
+        <TourOverlay
+          steps={TOUR_STEPS}
+          onClose={closeTour}
+          onViewChange={(view) => {
+            setViewBeforeTour((prev) => prev ?? search.view); // remember the first view before tour
+            update({ view });
+          }}
+        />
+      ) : null}
       {fileDragOver ? (
         <div className="pointer-events-none absolute inset-2 z-40 flex items-center justify-center rounded-xl border-2 border-dashed border-accent bg-window-bg/70">
           <span className="rounded-md bg-window-bg px-3 py-1.5 text-sm">Drop to open in Wefty</span>

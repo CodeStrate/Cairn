@@ -2,11 +2,14 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { Button, Text } from "@glaze/core/components";
 
+import type { ViewMode } from "../../lib/search";
 import type { TourStep } from "./tour-steps";
 
 interface TourOverlayProps {
   steps: TourStep[];
   onClose: () => void;
+  /** Called when a step needs a particular view (Timeline, Graph, List) on screen. */
+  onViewChange?: (view: ViewMode) => void;
 }
 
 interface Rect {
@@ -62,12 +65,18 @@ function cardPosition(rect: Rect | null, cardHeight: number) {
  * Spotlight tour: dims the window except the current step's target and shows a card next
  * to it. Arrow keys move between steps; Escape ends the tour.
  */
-export function TourOverlay({ steps, onClose }: TourOverlayProps) {
+export function TourOverlay({ steps, onClose, onViewChange }: TourOverlayProps) {
   const [index, setIndex] = useState(0);
   const [rect, setRect] = useState<Rect | null>(null);
   const [cardHeight, setCardHeight] = useState(180);
   const step = steps[index];
   const last = index === steps.length - 1;
+
+  // Switch to the step's view; the re-measure below then finds the new layout.
+  // Deps are only the view on purpose: onViewChange is a new function every render.
+  useEffect(() => {
+    if (step.currentviewMode) onViewChange?.(step.currentviewMode);
+  }, [step.currentviewMode]);
 
   // Re-measure on step change and while the layout settles or the window resizes.
   useEffect(() => {
@@ -135,16 +144,16 @@ export function TourOverlay({ steps, onClose }: TourOverlayProps) {
             outline: "2px solid rgba(255, 255, 255, 0.7)",
           }}
         />
-      ) : (
-        <div className="absolute inset-0 bg-black/55" />
-      )}
+      ) : null}
 
       <div
         ref={(element) => {
           if (element && Math.abs(element.offsetHeight - cardHeight) > 1)
             setCardHeight(element.offsetHeight);
         }}
-        className="absolute flex flex-col gap-3 rounded-xl bg-surface-popover p-4 shadow-xl transition-all duration-200 motion-reduce:transition-none"
+        // The card can sit over the un-blurred spotlight (e.g. the whole main pane), and the
+        // popover surface is translucent glass, so it needs its own blur to stay readable.
+        className="absolute flex flex-col gap-3 rounded-xl border border-separator bg-surface-popover p-4 shadow-xl backdrop-blur-2xl backdrop-saturate-150 transition-all duration-200 motion-reduce:transition-none"
         style={{ width: CARD_WIDTH, left: position.left, top: position.top }}
       >
         <Text variant="small" color="tertiary" className="tabular-nums">
