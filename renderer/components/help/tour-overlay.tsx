@@ -111,17 +111,19 @@ export function TourOverlay({ steps, onClose }: TourOverlayProps) {
         className="absolute inset-0 bg-black/40 backdrop-blur-[5px] transition-[clip-path] duration-200
         motion-reduce:transition-none"
         style={
-          rect ? {
-              clipPath: `polygon(evenodd,
+          rect
+            ? {
+                clipPath: `polygon(evenodd,
               0 0, 100% 0, 100% 100%, 0 100%, 0 0,
               ${rect.left}px ${rect.top}px,
               ${rect.left + rect.width}px ${rect.top}px,
               ${rect.left + rect.width}px ${rect.top + rect.height}px,
               ${rect.left}px ${rect.top + rect.height}px,
-              ${rect.left}px ${rect.top}px)`
-          } : undefined
+              ${rect.left}px ${rect.top}px)`,
+              }
+            : undefined
         }
-        />
+      />
       {rect ? (
         <div
           className="pointer-events-none absolute rounded-xl transition-all duration-200 motion-reduce:transition-none"

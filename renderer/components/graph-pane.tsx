@@ -1,4 +1,4 @@
-import { useRef, type ReactNode } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 import { Maximize, Minus, Plus } from "lucide-react";
 import { Button, EmptyState, Text } from "@glaze/core/components";
 
@@ -66,6 +66,21 @@ export function GraphPane({
         )
       : null;
 
+  // Jump/snap the camera to what the search found, once typing pauses.
+  useEffect(() => {
+    if (terms.length === 0) return;
+    const jumpToSearchTimer = window.setTimeout(() => {
+      const searchHits = new Set(
+        graph.nodes
+          .filter((node) => terms.every((term) => node.searchText.includes(term)))
+          .map((node) => node.id),
+      );
+      if (searchHits.size > 0) controlsRef.current?.fit(searchHits);
+    }, 250);
+    return () => window.clearTimeout(jumpToSearchTimer);
+    // Deps are only [query] on purpose: snap when the search changes, not on resize or hover.
+  }, [query]);
+
   const harnessesPresent = new Set<HarnessId>();
   let hasShared = false;
   let hasGenerated = false;
@@ -109,6 +124,11 @@ export function GraphPane({
 
       {items.length > 0 ? (
         <div className="pointer-events-none absolute bottom-3 left-4 flex max-w-[70%] flex-wrap items-center gap-x-4 gap-y-1">
+          {matches && matches.size === 0 ? (
+            <Text variant="small" color="secondary">
+              No matches for "{query.trim()}"
+            </Text>
+          ) : null}
           {HARNESS_ORDER.filter((id) => harnessesPresent.has(id)).map((id) => (
             <LegendEntry
               key={id}

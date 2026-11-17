@@ -239,8 +239,10 @@ export class GraphEngine {
     this.zoomAt(this.viewCenter(), 1 / 1.3);
   }
 
-  fit(): void {
-    const placed = this.nodes.filter((node) => node.x !== undefined && node.y !== undefined);
+  fit(only?: Set<string> | null): void {
+    const placed = this.nodes.filter(
+      (node) => node.x !== undefined && node.y !== undefined && (!only || only.has(node.id)),
+    );
     if (placed.length === 0 || this.width === 0) return;
     let minX = Infinity;
     let minY = Infinity;

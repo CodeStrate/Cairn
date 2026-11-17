@@ -281,6 +281,24 @@ export function RiverPane({
             .map((item) => item.id),
         )
       : null;
+  // Jump/snap to what the search found: fit their time span and scroll to the first lane.
+  useEffect(() => {
+    if (!river || !layout || width === 0 || terms.length === 0) return;
+    const jumpToSearchTimer = window.setTimeout(() => {
+      const hits = river.items.filter((item) => terms.every((t) => item.searchText.includes(t)));
+      if (hits.length === 0) return;
+      const start = Math.min(...hits.map((item) => item.start));
+      const end = Math.max(...hits.map((item) => item.end));
+      const span = Math.max(end - start, DAY); // never zoom tighter than one day
+      const k = clampK((width * 0.8) / span);
+      const t0 = start - (width / k - (end - start)) / 2; // centre the hits
+      setManualView(clampView({ t0, k }, river, width));
+      scrollRef.current?.scrollTo({ top: Math.max(0, rowY(hits[0]) - 60), behavior: "smooth" });
+    }, 250);
+    return () => window.clearTimeout(jumpToSearchTimer);
+    // Deps are only [query] on purpose: snap when the search changes, not on resize or hover.
+  }, [query]);
+
   const focusId = hoverId ?? selectedId;
   const focus = focusId && river?.byId.has(focusId) ? focusId : null;
   const related = focus ? (river?.related.get(focus) ?? new Map()) : null;
@@ -610,6 +628,11 @@ export function RiverPane({
       {/* Footer: legend and zoom live in the layout, not over the lanes */}
       <div className="flex shrink-0 items-center gap-4 border-t border-separator px-4 py-2">
         <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-4 gap-y-1">
+          {matches && matches.size === 0 ? (
+            <Text variant="small" color="secondary">
+              No matches for "{query.trim()}"
+            </Text>
+          ) : null}
           {HARNESS_ORDER.filter((id) => harnessesPresent.has(id)).map((id) => (
             <LegendEntry
               key={id}

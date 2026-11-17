@@ -7,7 +7,8 @@ import { GraphEngine, type GraphPalette } from "./graph-engine";
 export interface GraphControls {
   zoomIn(): void;
   zoomOut(): void;
-  fit(): void;
+  /** Fits every node, or only the ids in `only` (e.g. search hits). */
+  fit(only?: Set<string> | null): void;
 }
 
 /** Resolves semantic text/separator colors so the canvas follows the app theme. */
