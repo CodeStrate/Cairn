@@ -2,25 +2,13 @@
  * Handler Registration
  */
 
-import * as path from "path";
-import { fileURLToPath } from "url";
-
+import { ipcMain, logger } from "../electron/runtime.js";
+import { getSettingsWindow, openSettingsWindow } from "../windows/settings-window.js";
 import { registerLibraryHandlers } from "./library.js";
 import { registerTerminalHandlers } from "./terminal.js";
-import { getSettingsWindow, openSettingsWindow } from "../windows/settings-window.js";
-
-import { ipcMain, logger } from "@glaze/core/backend";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import { registerThemeHandlers } from "./theme.js";
 
 export function registerHandlers(): void {
-  // Return the .glaze project path (used for deep links back to the host)
-  // __dirname = build/main, so two levels up is the app root
-  ipcMain.handle("app:getProjectPath", async () => {
-    return path.join(__dirname, "..", "..");
-  });
-
   ipcMain.handle("window:openSettings", async () => {
     await openSettingsWindow();
   });
@@ -34,6 +22,9 @@ export function registerHandlers(): void {
 
   // Embedded terminals (node-pty)
   registerTerminalHandlers();
+
+  // Light / dark / system appearance
+  registerThemeHandlers();
 
   logger.info("handlers", "IPC handlers registered");
 }

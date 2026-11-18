@@ -1,44 +1,33 @@
-import { BrowserWindow, logger } from "@glaze/core/backend";
-import { getPreloadPath, getWindowUrl } from "./window-paths.js";
+import type { BrowserWindow } from "electron";
+
+import { logger } from "../electron/runtime.js";
+import { createSecureWindow } from "./secure-window.js";
+import { getWindowUrl } from "./window-paths.js";
 
 let settingsWindow: BrowserWindow | null = null;
 
 export async function openSettingsWindow(): Promise<void> {
-  // If window exists and is not destroyed, just show it
   if (settingsWindow && !settingsWindow.isDestroyed()) {
-    logger.debug("settings", "Settings window already exists, showing it");
     settingsWindow.show();
+    settingsWindow.focus();
     return;
   }
 
   logger.info("settings", "Creating settings window");
-
-  settingsWindow = new BrowserWindow({
-    windowKey: "settings",
-    width: 520,
-    height: 300,
-    minWidth: 400,
-    minHeight: 200,
+  settingsWindow = createSecureWindow({
+    width: 600,
+    height: 640,
+    minWidth: 440,
+    minHeight: 320,
     title: "Settings",
-    show: false,
     center: true,
-    webPreferences: {
-      preload: getPreloadPath(),
-    },
+    minimizable: false,
+    fullscreenable: false,
   });
-
-  settingsWindow.once("ready-to-show", () => {
-    settingsWindow?.show();
-  });
-
   settingsWindow.on("closed", () => {
     settingsWindow = null;
   });
-
-  const url = await getWindowUrl("settings-window.html");
-  logger.info("settings", "Loading settings URL", { url });
-
-  await settingsWindow.loadURL(url);
+  await settingsWindow.loadURL(getWindowUrl("settings-window.html"));
 }
 
 export function getSettingsWindow(): BrowserWindow | null {

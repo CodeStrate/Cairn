@@ -1,4 +1,4 @@
-import { app, ipcMain } from "@glaze/core/backend";
+import { app, ipcMain } from "../electron/runtime.js";
 
 import { isAbsolutePath } from "../services/platform.js";
 import {

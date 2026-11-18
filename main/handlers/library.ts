@@ -1,4 +1,4 @@
-import { app, clipboard, ipcMain, shell } from "@glaze/core/backend";
+import { app, clipboard, ipcMain, shell } from "../electron/runtime.js";
 
 import {
   getHandoff,

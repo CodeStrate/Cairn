@@ -134,3 +134,17 @@ export type PathMatch =
   | { kind: "item"; id: string }
   | { kind: "project"; path: string }
   | { kind: "none" };
+
+export type ThemeSource = "system" | "light" | "dark";
+
+/** A colour theme either follows light/dark (adaptive) or is always one of them. */
+export type ThemeMode = "adaptive" | "light" | "dark";
+
+export interface ThemeInfo {
+  /** Selected colour theme (presets live in renderer/ui/themes.ts). */
+  themeId: string;
+  themeSource: ThemeSource;
+  shouldUseDarkColors: boolean;
+  /** The OS accent colour as `#rrggbb`, or null where the OS doesn't expose one (Linux). */
+  accentColor: string | null;
+}

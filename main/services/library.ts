@@ -1,7 +1,7 @@
 import * as fs from "fs";
 import * as path from "path";
 
-import { app, ipcMain, logger, shell } from "@glaze/core/backend";
+import { app, ipcMain, logger, shell } from "../electron/runtime.js";
 
 import {
   HARNESS_IDS,

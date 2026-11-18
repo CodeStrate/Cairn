@@ -1,99 +1,107 @@
-// Wefty backend entry point. The runtime wires IPC, the native bridge, and lifecycle
-// handling before this file runs.
+// Wefty main process: windows, the application menu, and app lifecycle. IPC handlers are
+// registered in handlers/; everything else lives in services/.
 
-import {
-  app,
-  BrowserWindow,
-  ipcMain,
-  Menu,
-  logger,
-  initDevToolsButtonState,
-} from "@glaze/core/backend";
+import type { BrowserWindow, MenuItemConstructorOptions } from "electron";
 
+import { app, ipcMain, logger, Menu } from "./electron/runtime.js";
 import { registerHandlers } from "./handlers/index.js";
-import { getPreloadPath, getWindowUrl } from "./windows/window-paths.js";
+import { applySavedTheme } from "./handlers/theme.js";
 import { openSettingsWindow } from "./windows/settings-window.js";
+import { createSecureWindow } from "./windows/secure-window.js";
+import { getWindowUrl } from "./windows/window-paths.js";
 
 const APP_NAME = "Wefty";
+const isMac = process.platform === "darwin";
 
-registerHandlers();
+app.setName(APP_NAME);
+
+// One instance: a second launch focuses the existing window instead.
+if (!app.requestSingleInstanceLock()) {
+  app.quit();
+}
 
 let mainWindow: BrowserWindow | null = null;
 
-async function createMainWindow() {
-  if (mainWindow && !mainWindow.isDestroyed()) return;
-
-  mainWindow = new BrowserWindow({
-    windowKey: "main", // Stable key for frame persistence
+async function createMainWindow(): Promise<void> {
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    mainWindow.show();
+    return;
+  }
+  mainWindow = createSecureWindow({
     width: 1240,
     height: 800,
     minWidth: 760,
     minHeight: 520,
     title: APP_NAME,
-    show: false, // Shown on ready-to-show to avoid a blank flash
-    webPreferences: {
-      preload: getPreloadPath(),
-    },
   });
-
-  mainWindow.once("ready-to-show", () => mainWindow?.show());
-  await mainWindow.loadURL(await getWindowUrl("main-window.html"));
+  mainWindow.on("closed", () => {
+    mainWindow = null;
+  });
+  await mainWindow.loadURL(getWindowUrl("main-window.html"));
 }
 
-async function setupApplicationMenu() {
-  await initDevToolsButtonState();
-  const menu = Menu.buildFromTemplate([
+function setupApplicationMenu(): void {
+  const settings: MenuItemConstructorOptions = {
+    label: isMac ? "Settings…" : "Preferences…",
+    accelerator: "CmdOrCtrl+,",
+    click: () => void openSettingsWindow(),
+  };
+
+  const template: MenuItemConstructorOptions[] = [
+    ...(isMac
+      ? [
+          {
+            label: APP_NAME,
+            submenu: [
+              { role: "about" },
+              { type: "separator" },
+              settings,
+              { type: "separator" },
+              { role: "services" },
+              { type: "separator" },
+              { role: "hide" },
+              { role: "hideOthers" },
+              { role: "unhide" },
+              { type: "separator" },
+              { role: "quit" },
+            ],
+          } satisfies MenuItemConstructorOptions,
+        ]
+      : []),
     {
-      label: APP_NAME,
-      submenu: [
-        { role: "about" },
-        { type: "separator" },
-        {
-          label: "Settings…",
-          icon: "gearshape",
-          accelerator: "Command+,",
-          click: async () => await openSettingsWindow(),
-        },
-        { type: "separator" },
-        { role: "services" },
-        { type: "separator" },
-        { role: "hide" },
-        { role: "hideOthers" },
-        { role: "unhide" },
-        { type: "separator" },
-        { role: "quit" },
-      ],
+      label: "File",
+      submenu: isMac ? [{ role: "close" }] : [settings, { type: "separator" }, { role: "quit" }],
     },
-    { role: "fileMenu" },
     { role: "editMenu" },
     { role: "viewMenu" },
     { role: "windowMenu" },
     {
-      label: "Help",
+      role: "help",
       submenu: [
         {
-          label: "Wefty Help",
-          icon: "questionmark.circle",
-          accelerator: "Command+?",
+          label: `${APP_NAME} Help`,
+          accelerator: "CmdOrCtrl+?",
           click: () => ipcMain.broadcast("help:open", {}),
         },
-        {
-          label: "Show Tour",
-          icon: "sparkles",
-          click: () => ipcMain.broadcast("tour:start", {}),
-        },
+        { label: "Show Tour", click: () => ipcMain.broadcast("tour:start", {}) },
       ],
     },
-  ]);
-  Menu.setApplicationMenu(menu);
+  ];
+  Menu.setApplicationMenu(Menu.buildFromTemplate(template));
 }
 
-// macOS convention: keep running when the last window closes.
-app.on("window-all-closed", () => {});
+app.on("second-instance", () => {
+  if (!mainWindow) return;
+  if (mainWindow.isMinimized()) mainWindow.restore();
+  mainWindow.focus();
+});
 
-// Re-open the main window when the Dock icon is clicked and nothing is visible.
-app.on("activate", (hasVisibleWindows) => {
-  if (hasVisibleWindows) return;
+// macOS keeps the app running with no windows; other platforms quit.
+app.on("window-all-closed", () => {
+  if (!isMac) app.quit();
+});
+
+app.on("activate", () => {
   if (!mainWindow || mainWindow.isDestroyed()) {
     createMainWindow().catch((error) =>
       logger.error("main", "Failed to create main window", error),
@@ -104,6 +112,10 @@ app.on("activate", (hasVisibleWindows) => {
 });
 
 app.whenReady().then(async () => {
-  await setupApplicationMenu();
-  createMainWindow().catch((error) => logger.error("main", "Failed to create main window", error));
+  registerHandlers();
+  await applySavedTheme();
+  setupApplicationMenu();
+  await createMainWindow().catch((error) =>
+    logger.error("main", "Failed to create main window", error),
+  );
 });
