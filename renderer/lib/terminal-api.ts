@@ -1,5 +1,6 @@
+import { invoke, onNotification } from "./bridge";
 function ipc() {
-  return window.glazeAPI.glaze.ipc;
+  return { invoke, onNotification };
 }
 
 export interface CreatedTerminal {

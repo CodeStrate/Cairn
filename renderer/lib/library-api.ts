@@ -11,11 +11,12 @@ import type {
   SessionDetail,
   TrashResult,
 } from "@main/shared/types";
+import { invoke, onNotification } from "./bridge";
 
 const LIBRARY_KEY = ["library"] as const;
 
 function ipc() {
-  return window.glazeAPI.glaze.ipc;
+  return { invoke, onNotification };
 }
 
 export function useLibrary() {
