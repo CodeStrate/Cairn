@@ -8,7 +8,7 @@ import { registerHandlers } from "./handlers/index.js";
 import { applySavedTheme } from "./handlers/theme.js";
 import { openSettingsWindow } from "./windows/settings-window.js";
 import { createSecureWindow } from "./windows/secure-window.js";
-import { getWindowUrl } from "./windows/window-paths.js";
+import { getAppIconPath, getWindowUrl } from "./windows/window-paths.js";
 
 const APP_NAME = "Wefty";
 const isMac = process.platform === "darwin";
@@ -112,6 +112,17 @@ app.on("activate", () => {
 });
 
 app.whenReady().then(async () => {
+  const icon = getAppIconPath(app.getAppPath());
+  // Dev runs the stock Electron.app, so set the Dock icon ourselves (packaged builds use
+  // the .icns from build-resources).
+  if (isMac && !app.isPackaged) app.dock?.setIcon(icon);
+  app.setAboutPanelOptions({
+    applicationName: APP_NAME,
+    applicationVersion: app.getVersion(),
+    iconPath: icon,
+    copyright: "CodeStrate",
+  });
+
   registerHandlers();
   await applySavedTheme();
   setupApplicationMenu();

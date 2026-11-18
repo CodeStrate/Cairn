@@ -77,7 +77,8 @@
     },
     "files": [
       "out/**",
-      "package.json"
+      "package.json",
+      "build-resources/icon.png"
     ],
     "asarUnpack": [
       "node_modules/node-pty/**"
@@ -87,14 +88,12 @@
         "dmg",
         "zip"
       ],
-      "category": "public.app-category.developer-tools",
-      "icon": "app-icon.icns"
+      "category": "public.app-category.developer-tools"
     },
     "win": {
       "target": [
         "nsis"
-      ],
-      "icon": "app-icon.png"
+      ]
     },
     "linux": {
       "target": [
@@ -102,7 +101,6 @@
         "deb"
       ],
       "category": "Development",
-      "icon": "app-icon.png",
       "maintainer": "CodeStrate"
     },
     "nsis": {

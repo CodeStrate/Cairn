@@ -1,6 +1,6 @@
-import { BrowserWindow, shell, type BrowserWindowConstructorOptions } from "electron";
+import { app, BrowserWindow, shell, type BrowserWindowConstructorOptions } from "electron";
 
-import { getPreloadPath } from "./window-paths.js";
+import { getAppIconPath, getPreloadPath } from "./window-paths.js";
 
 /**
  * Window chrome per OS. macOS: inset traffic lights and the sidebar vibrancy material behind a
@@ -17,7 +17,8 @@ export function chromeOptions(): Partial<BrowserWindowConstructorOptions> {
         visualEffectState: "followWindow",
         backgroundColor: "#00000000",
       }
-    : { autoHideMenuBar: true };
+    : // Linux takes the taskbar/window icon from here; Windows uses the .exe's icon.
+      { autoHideMenuBar: true, icon: getAppIconPath(app.getAppPath()) };
 }
 
 /**
