@@ -3,31 +3,28 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!--
+      Locked down: scripts only from the app itself (inline is needed for Vite's dev preamble),
+      'wasm-unsafe-eval' so WASM renderers such as ghostty-web can run, and network access
+      limited to the local dev server.
+    -->
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self' 'unsafe-inline' file: glaze-core: http://localhost:* http://127.0.0.1:* http://0.0.0.0:*; style-src 'self' 'unsafe-inline' file: glaze-core: http://localhost:* http://127.0.0.1:* http://0.0.0.0:*; img-src 'self' data: blob: file: local: ipc: glaze-core: https: http://localhost:* http://127.0.0.1:* http://0.0.0.0:*; font-src 'self' data: file: glaze-core:; connect-src 'self' file: local: ipc: glaze: glaze-core: https: http://localhost:* http://127.0.0.1:* http://0.0.0.0:* ws://localhost:* ws://127.0.0.1:* ws://0.0.0.0:*; media-src 'self' data: blob: file: local: ipc: https:; worker-src 'self' blob:; frame-src 'self' blob: data:"
+      content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' http://localhost:*; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' http://localhost:* ws://localhost:*; worker-src 'self' blob:"
     />
-    <title>Cairn</title>
+    <title>Wefty</title>
     <script>
       if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
         document.documentElement.classList.add("dark");
       }
+      // Only macOS draws the vibrancy material behind the page; elsewhere use solid surfaces.
+      if (window.wefty?.platform !== "darwin") {
+        document.documentElement.classList.add("solid");
+      }
     </script>
-    <style>
-      :root {
-        --background: hsl(0 0% 100% / 0.9);
-      }
-      .dark {
-        --background: hsl(0 0% 0% / 0.4);
-      }
-      body {
-        background: var(--background);
-      }
-    </style>
   </head>
   <body>
     <div id="root"></div>
-    <!-- Preload is injected by the native layer via webPreferences.preload -->
     <script type="module" src="./renderer/main/index.tsx"></script>
   </body>
 </html>

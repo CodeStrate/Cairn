@@ -1,45 +1,34 @@
 {
-  "id": "2kx8bm18",
   "name": "wefty",
   "version": "1.0.0",
   "productName": "Wefty",
-  "description": "Unify all agent sessions and memories",
+  "description": "One local library for everything your coding agents remember.",
   "iconDescription": "A universal workspace that consolidates chat histories, memories, and contexts from multiple AI agents and platforms into one searchable interface. Users can visualize connections between sessions like a knowledge graph, drag-and-drop memories between conversations, and continue work across different AI harnesses seamlessly. Think of an interconnected web of threads, a bridge connecting islands, or overlapping conversation bubbles linking together.",
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "sh ./glaze-node.sh build",
-    "dev": "sh ./glaze-node.sh dev",
-    "dev:renderer": "sh ./glaze-node.sh dev:renderer",
-    "lint": "sh ./glaze-node.sh lint",
-    "type-check": "sh ./glaze-node.sh type-check",
-    "format": "sh ./glaze-node.sh format",
-    "verify": "sh ./glaze-node.sh verify --json",
-    "launch": "sh ./glaze-node.sh launch --wait --json",
-    "update-bundle": "sh ./glaze-node.sh update-bundle --wait --json",
-    "repackage": "sh ./glaze-node.sh repackage --wait --json"
+    "dev": "node scripts/dev.mjs",
+    "build": "node scripts/build.mjs",
+    "start": "electron .",
+    "dist": "npm run build && electron-builder",
+    "dist:mac": "npm run build && electron-builder --mac",
+    "dist:win": "npm run build && electron-builder --win",
+    "dist:linux": "npm run build && electron-builder --linux",
+    "type-check": "tsc -p tsconfig.json && tsc -p main/tsconfig.json",
+    "lint": "eslint main renderer scripts",
+    "format": "oxfmt main renderer scripts vite.config.ts eslint.config.js",
+    "postinstall": "node -e \"const fs=require('fs'),p='node_modules/node-pty/prebuilds';if(fs.existsSync(p))for(const d of fs.readdirSync(p)){const f=p+'/'+d+'/spawn-helper';if(fs.existsSync(f))fs.chmodSync(f,0o755)}\""
   },
   "dependencies": {
-    "@radix-ui/colors": "^3.0.0",
-    "@tanstack/react-query": "^5.87.4",
-    "@tanstack/react-router": "^1.131.36",
-    "@xterm/addon-fit": "^0.11.0",
-    "@xterm/xterm": "^6.0.0",
-    "class-variance-authority": "^0.7.1",
-    "clsx": "^2.1.1",
-    "cmdk": "^1.1.1",
-    "d3-force": "^3.0.0",
-    "lucide-react": "^0.542.0",
-    "node-pty": "^1.1.0",
-    "radix-ui": "^1.4.3",
-    "react": "^19.1.1",
-    "react-dom": "^19.1.1",
-    "tailwind-merge": "^3.3.1"
+    "node-pty": "^1.1.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.22.0",
+    "@radix-ui/colors": "^3.0.0",
     "@rolldown/plugin-babel": "^0.2.1",
     "@tailwindcss/vite": "^4.2.2",
+    "@tanstack/react-query": "^5.87.4",
+    "@tanstack/react-router": "^1.131.36",
     "@types/d3-force": "^3.0.10",
     "@types/node": "^24.3.1",
     "@types/react": "^19.1.12",
@@ -47,31 +36,78 @@
     "@typescript-eslint/eslint-plugin": "^8.18.0",
     "@typescript-eslint/parser": "^8.18.0",
     "@vitejs/plugin-react": "^6.0.1",
+    "@xterm/addon-fit": "^0.11.0",
+    "@xterm/xterm": "^6.0.0",
     "babel-plugin-react-compiler": "^1.0.0",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "cmdk": "^1.1.1",
+    "d3-force": "^3.0.0",
+    "electron": "^45.3.4",
+    "electron-builder": "^26.18.0",
     "esbuild": "^0.28.2",
     "eslint": "^9.39.2",
     "eslint-plugin-import": "^2.31.0",
     "globals": "^17.3.0",
+    "lucide-react": "^0.542.0",
     "oxfmt": "^0.26.0",
+    "radix-ui": "^1.4.3",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "react-markdown": "^10.1.0",
+    "remark-gfm": "^4.0.1",
+    "sonner": "^2.0.8",
+    "tailwind-merge": "^3.3.1",
     "tailwindcss": "^4.2.2",
     "tsx": "^4.20.5",
     "typescript": "^5.5.3",
     "vite": "^8.0.2"
   },
   "engines": {
-    "node": ">=24"
+    "node": ">=22"
   },
-  "packageManager": "npm@11.11.0+sha512-82gRxKrh/eY5UnNorkTFcdBQAGpgjWehkfGVqAGlJjejEtJZGGJUqjo3mbBTNbc5BTnPKGVtGPBZGhElujX5cw==",
-  "glaze": {
-    "appId": "context-bridge-local-2kx8bm18",
-    "variant": "local",
-    "capabilities": {},
-    "sdkVersion": "0.14.6.0",
-    "createdAt": "2026-10-07T19:05:09.758Z",
-    "lastMigration": "sdk-projection-paths",
-    "host": {
-      "minVersion": "0.14.6.0"
+  "author": "CodeStrate",
+  "main": "out/main/index.js",
+  "build": {
+    "appId": "app.wefty.desktop",
+    "productName": "Wefty",
+    "directories": {
+      "output": "release",
+      "buildResources": "build-resources"
     },
-    "updatedAt": 1793819704887
+    "files": [
+      "out/**",
+      "package.json"
+    ],
+    "asarUnpack": [
+      "node_modules/node-pty/**"
+    ],
+    "mac": {
+      "target": [
+        "dmg",
+        "zip"
+      ],
+      "category": "public.app-category.developer-tools",
+      "icon": "app-icon.icns"
+    },
+    "win": {
+      "target": [
+        "nsis"
+      ],
+      "icon": "app-icon.png"
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "category": "Development",
+      "icon": "app-icon.png",
+      "maintainer": "CodeStrate"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
   }
 }
