@@ -3,6 +3,12 @@
  * Renderer code imports these with `import type` only.
  */
 
+export interface CreatedTerminal {
+  id: string;
+  cwd: string;
+  shell: string;
+}
+
 export type HarnessId = "claude-code" | "codex" | "cursor" | "opencode" | "aider";
 
 export const HARNESS_IDS: readonly HarnessId[] = [

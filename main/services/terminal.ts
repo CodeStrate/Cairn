@@ -9,7 +9,7 @@ import * as path from "path";
 import * as pty from "node-pty";
 
 import { defaultShell, HOME, loginShellArgs } from "./platform.js";
-
+import type { CreatedTerminal } from "../shared/types.js";
 export interface TerminalEvents {
   onData: (id: string, data: string) => void;
   onExit: (id: string, exitCode: number) => void;
@@ -90,12 +90,13 @@ function flush(id: string, session: Session): void {
   events?.onData(id, data);
 }
 
-export function createTerminal(options: CreateTerminalOptions): { id: string; cwd: string } {
+export function createTerminal(options: CreateTerminalOptions): CreatedTerminal {
   if (sessions.size >= MAX_TERMINALS)
     throw new Error(`At most ${MAX_TERMINALS} terminals can be open`);
   const cwd = resolveCwd(options.cwd);
   ensureSpawnHelperExecutable();
-  const proc = pty.spawn(defaultShell(), loginShellArgs(), {
+  const shell = defaultShell();
+  const proc = pty.spawn(shell, loginShellArgs(), {
     name: "xterm-256color",
     cols: clampSize(options.cols, 80),
     rows: clampSize(options.rows, 24),
@@ -122,7 +123,7 @@ export function createTerminal(options: CreateTerminalOptions): { id: string; cw
   });
 
   if (options.command) proc.write(`${options.command}\r`);
-  return { id, cwd };
+  return { id, cwd, shell: path.parse(shell).name };
 }
 
 function requireSession(id: string): Session {

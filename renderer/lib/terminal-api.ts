@@ -1,11 +1,7 @@
 import { invoke, onNotification } from "./bridge";
+import type { CreatedTerminal } from "@main/shared/types";
 function ipc() {
   return { invoke, onNotification };
-}
-
-export interface CreatedTerminal {
-  id: string;
-  cwd: string;
 }
 
 export function createTerminal(input: {
