@@ -1,0 +1,253 @@
+/*
+ * Wefty design tokens. Components and app code use these semantic names
+ * (text-secondary, bg-well, border-separator, …) instead of raw colors, so light and
+ * dark mode are a matter of swapping the variables below. Dark mode follows the
+ * `.dark` class that useTheme() keeps in sync with prefers-color-scheme (which the main
+ * process controls through nativeTheme.themeSource).
+ */
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  color-scheme: light;
+  /* Seeds: everything below is the foreground or background at a fixed opacity, so text and
+     surfaces stay consistent over the translucent macOS vibrancy material. */
+  --wf-fg: 0 0 0;
+  --wf-bg: 255 255 255;
+  --wf-page: rgb(255 255 255 / 0.9);
+  --wf-window: rgb(var(--wf-bg) / 0.4);
+  --wf-terminal-bg: #f7f7f8;
+  --wf-sidebar: transparent;
+  --wf-popover: #fcfcfc;
+  --wf-accent: #0a7aff;
+  --wf-destructive: #e5373b;
+  --wf-shadow: 0 8px 28px rgb(0 0 0 / 0.14), 0 0 0 0.5px rgb(0 0 0 / 0.12);
+}
+
+.dark {
+  color-scheme: dark;
+  --wf-fg: 255 255 255;
+  --wf-bg: 0 0 0;
+  --wf-page: rgb(0 0 0 / 0.55);
+  --wf-popover: #0f0f11;
+  --wf-terminal-bg: #0e0e10;
+  --wf-accent: #0a84ff;
+  --wf-destructive: #ff5257;
+  --wf-shadow: 0 10px 32px rgb(0 0 0 / 0.5), 0 0 0 0.5px rgb(255 255 255 / 0.12);
+}
+
+/* No vibrancy (Windows, Linux): the same tokens over solid surfaces. */
+.solid {
+  --wf-page: #f6f6f6;
+  --wf-window: #ffffff;
+  --wf-sidebar: #f0f0f0;
+}
+.solid.dark {
+  --wf-page: #161616;
+  --wf-window: #1b1b1b;
+  --wf-sidebar: #141414;
+}
+
+:root {
+  --wf-text-1: rgb(var(--wf-fg));
+  --wf-text-2: rgb(var(--wf-fg) / 0.6);
+  --wf-text-3: rgb(var(--wf-fg) / 0.4);
+  --wf-text-4: rgb(var(--wf-fg) / 0.2);
+  --wf-separator: rgb(var(--wf-fg) / 0.1);
+  --wf-well: rgb(var(--wf-fg) / 0.025);
+  --wf-control: rgb(var(--wf-fg) / 0.08);
+  --wf-control-hover: rgb(var(--wf-fg) / 0.14);
+  --wf-control-subtle: rgb(var(--wf-fg) / 0.05);
+  --wf-input: rgb(var(--wf-fg) / 0.05);
+  --wf-selection: rgb(var(--wf-fg) / 0.08);
+  /* The inset sidebar card sits a little lighter (dark) / darker (light) than the window. */
+  --wf-sidebar-panel: rgb(var(--wf-fg) / 0.045);
+  --wf-accent-hover: color-mix(in srgb, var(--wf-accent), var(--wf-text-1) 15%);
+  --wf-accent-contrast: #ffffff;
+
+  /* Category tints (harness colours, badges). Themes replace them with their own palette. */
+  --wf-tint-orange: #e5732e;
+  --wf-tint-blue: #3b8eea;
+  --wf-tint-purple: #9a6fd6;
+  --wf-tint-green: #3aa676;
+  --wf-tint-yellow: #d9a520;
+  --wf-tint-red: #e05252;
+  --wf-tint-magenta: #d05bb4;
+  --wf-tint-gray: rgb(var(--wf-fg) / 0.45);
+}
+
+@theme inline {
+  --font-sans:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter", Ubuntu, system-ui, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, "Cascadia Mono", "Ubuntu Mono", monospace;
+
+  /* Text colors */
+  --color-primary: var(--wf-text-1);
+  --color-secondary: var(--wf-text-2);
+  --color-tertiary: var(--wf-text-3);
+  --color-quaternary: var(--wf-text-4);
+
+  /* Surfaces */
+  --color-window-bg: var(--wf-window);
+  --color-sidebar: var(--wf-sidebar);
+  --color-sidebar-panel: var(--wf-sidebar-panel);
+  --color-terminal: var(--wf-terminal-bg);
+  --color-well: var(--wf-well);
+  --color-surface-well: var(--wf-well);
+  --color-separator: var(--wf-separator);
+  --color-control: var(--wf-control);
+  --color-control-hover: var(--wf-control-hover);
+  --color-control-subtle: var(--wf-control-subtle);
+  --color-surface-control: var(--wf-control);
+  --color-surface-popover: var(--wf-popover);
+  --color-input: var(--wf-input);
+  --color-selection: var(--wf-selection);
+  --color-accent: var(--wf-accent);
+  --color-accent-hover: var(--wf-accent-hover);
+  --color-accent-contrast: var(--wf-accent-contrast);
+  --color-destructive: var(--wf-destructive);
+
+  /* Type scale (font-size + weight), used as text-small, text-strong, … */
+  --text-mini: 10.5px;
+  --text-mini--line-height: 14px;
+  --text-small: 12px;
+  --text-small--line-height: 16px;
+  --text-regular: 13px;
+  --text-regular--line-height: 18px;
+  --text-strong: 13px;
+  --text-strong--line-height: 18px;
+  --text-strong--font-weight: 600;
+  --text-large: 15px;
+  --text-large--line-height: 20px;
+  --text-large-strong: 15px;
+  --text-large-strong--line-height: 20px;
+  --text-large-strong--font-weight: 600;
+  --text-heading2: 17px;
+  --text-heading2--line-height: 22px;
+  --text-heading2--font-weight: 600;
+  --text-heading1: 22px;
+  --text-heading1--line-height: 28px;
+  --text-heading1--font-weight: 700;
+
+  --shadow-popover: var(--wf-shadow);
+  --spacing-13: 52px;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  overflow: hidden;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--wf-text-1);
+  background: var(--wf-page);
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+  cursor: default;
+}
+
+input,
+textarea,
+[contenteditable="true"],
+.selectable {
+  user-select: text;
+}
+
+/* Window dragging: toolbars and sidebar headers drag the window; controls inside don't. */
+.drag-region {
+  -webkit-app-region: drag;
+}
+.drag-region
+  :is(button, a, input, textarea, select, [role="button"], [role="tab"], [data-no-drag]) {
+  -webkit-app-region: no-drag;
+}
+
+/* Agent-written Markdown */
+.wf-markdown {
+  font-size: 13px;
+  line-height: 1.55;
+  user-select: text;
+}
+.wf-markdown > * + * {
+  margin-top: 0.6em;
+}
+.wf-markdown h1,
+.wf-markdown h2,
+.wf-markdown h3,
+.wf-markdown h4 {
+  margin-top: 1em;
+}
+.wf-markdown ul {
+  list-style: disc;
+  padding-left: 1.25em;
+}
+.wf-markdown ol {
+  list-style: decimal;
+  padding-left: 1.4em;
+}
+.wf-markdown li + li {
+  margin-top: 0.2em;
+}
+.wf-markdown a {
+  color: var(--wf-accent);
+}
+.wf-markdown code {
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+  padding: 0.05em 0.3em;
+  border-radius: 4px;
+  background: var(--wf-control);
+}
+.wf-markdown pre {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.5;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: var(--wf-well);
+  overflow-x: auto;
+}
+.wf-markdown pre code {
+  padding: 0;
+  background: none;
+}
+.wf-markdown blockquote {
+  border-left: 3px solid var(--wf-separator);
+  padding-left: 0.8em;
+  color: var(--wf-text-2);
+}
+.wf-markdown table {
+  border-collapse: collapse;
+  font-size: 12px;
+}
+.wf-markdown th,
+.wf-markdown td {
+  border: 1px solid var(--wf-separator);
+  padding: 4px 8px;
+  text-align: left;
+}
+.wf-markdown hr {
+  border: 0;
+  border-top: 1px solid var(--wf-separator);
+}
+
+/* Scrollbars that stay out of the way */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--wf-control-hover);
+  border-radius: 10px;
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
