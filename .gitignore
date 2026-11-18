@@ -39,3 +39,8 @@ GLAZE-AGENT-INSTRUCTIONS.md
 *.pem
 *.key
 *.p12
+
+# Electron build output
+out/
+release/
+build-resources/
