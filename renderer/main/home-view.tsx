@@ -1,6 +1,6 @@
 import { useEffect, useState, type DragEvent, type ReactNode } from "react";
 import { useNavigate, useSearch } from "@tanstack/react-router";
-import { SplitView, toast } from "@glaze/core/components";
+import { SplitView, toast } from "@renderer/ui";
 
 import type { HarnessId, LibraryItem, ProjectSummary } from "@main/shared/types";
 
@@ -17,6 +17,7 @@ import { ListPane } from "../components/list-pane";
 import { PrimaryToolbar } from "../components/primary-toolbar";
 import { RiverPane } from "../components/river-pane";
 import { TerminalDock } from "../components/terminal/terminal-dock";
+import { getPathForFile, onNotification } from "../lib/bridge";
 import { plural } from "../lib/format";
 import { HARNESS_STYLES } from "../lib/harness";
 import { hasSeenTour, markTourSeen } from "../lib/onboarding";
@@ -55,9 +56,8 @@ export function HomeView() {
 
   // Help menu items in the native menu bar (main/index.ts) arrive as notifications.
   useEffect(() => {
-    const ipc = window.glazeAPI.glaze.ipc;
-    const offHelp = ipc.onNotification("help:open", () => setHelpOpen(true));
-    const offTour = ipc.onNotification("tour:start", () => {
+    const offHelp = onNotification("help:open", () => setHelpOpen(true));
+    const offTour = onNotification("tour:start", () => {
       setHelpOpen(false);
       setTourOpen(true);
     });
@@ -162,9 +162,7 @@ export function HomeView() {
     if (!isFileDrag(event)) return;
     event.preventDefault();
     setFileDragOver(false);
-    const paths = [...event.dataTransfer.files]
-      .map((file) => window.glazeAPI.webUtils.getPathForFile(file))
-      .filter(Boolean);
+    const paths = [...event.dataTransfer.files].map((file) => getPathForFile(file)).filter(Boolean);
     if (paths.length === 0) {
       toast.error("Couldn't read the dropped file's location");
       return;

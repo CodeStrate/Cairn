@@ -17,7 +17,7 @@ import {
   SidebarListGroup,
   SidebarListItem,
   Text,
-} from "@glaze/core/components";
+} from "@renderer/ui";
 
 import type { HarnessId, HarnessInfo, LibrarySnapshot, ProjectSummary } from "@main/shared/types";
 
@@ -118,7 +118,7 @@ export function AppSidebar({
       footer={
         library ? (
           <SidebarFooter>
-            <Text variant="small" color="tertiary" className="px-3 py-2">
+            <Text variant="small" color="tertiary" className="block px-3 pt-2 pb-3">
               Updated {relativeTime(library.scannedAt).toLowerCase()}
             </Text>
           </SidebarFooter>

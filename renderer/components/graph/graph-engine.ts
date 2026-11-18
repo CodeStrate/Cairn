@@ -71,6 +71,13 @@ function truncateLabel(label: string): string {
 }
 
 /** Canvas force-directed graph with pan, zoom, hover focus, and node dragging. */
+/** Canvas can't read CSS variables, so `var(--x)` colours are resolved against <html>. */
+function resolveCssColor(color: string | null): string | null {
+  const match = color && /^var\((--[\w-]+)\)$/.exec(color);
+  if (!match) return color;
+  return getComputedStyle(document.documentElement).getPropertyValue(match[1]).trim() || null;
+}
+
 export class GraphEngine {
   private readonly canvas: HTMLCanvasElement;
   private readonly container: HTMLElement;
@@ -415,7 +422,7 @@ export class GraphEngine {
       const dim = !isFocused(node.id) || !isMatched(node.id);
       ctx.globalAlpha = dim ? 0.18 : 1;
       const { radius, type, hollow } = node.data;
-      const color = node.data.color ?? palette.hub;
+      const color = resolveCssColor(node.data.color) ?? palette.hub;
       this.tracePath(node.x, node.y, radius, type);
       if (hollow) {
         ctx.lineWidth = 1.5 / k;

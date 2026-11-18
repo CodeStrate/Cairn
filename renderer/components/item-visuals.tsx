@@ -1,5 +1,5 @@
 import { BookText, Brain, ListChecks, MessagesSquare, Sparkles } from "lucide-react";
-import { Badge } from "@glaze/core/components";
+import { Badge } from "@renderer/ui";
 
 import type { HarnessId, LibraryItem } from "@main/shared/types";
 

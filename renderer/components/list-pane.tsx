@@ -8,7 +8,7 @@ import {
   EmptyState,
   List,
   ScrollArea,
-} from "@glaze/core/components";
+} from "@renderer/ui";
 
 import type { LibraryItem, LibrarySnapshot } from "@main/shared/types";
 

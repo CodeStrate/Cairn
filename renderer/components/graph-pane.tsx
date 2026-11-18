@@ -1,6 +1,6 @@
 import { useEffect, useRef, type ReactNode } from "react";
 import { Maximize, Minus, Plus } from "lucide-react";
-import { Button, EmptyState, Text } from "@glaze/core/components";
+import { Button, EmptyState, Text } from "@renderer/ui";
 
 import type { HarnessId, LibraryItem, LibrarySnapshot } from "@main/shared/types";
 

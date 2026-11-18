@@ -9,7 +9,7 @@ import {
   ToolbarDescription,
   ToolbarSearchButton,
   ToolbarTitle,
-} from "@glaze/core/components";
+} from "@renderer/ui";
 
 import { isViewMode, type ViewMode } from "../lib/search";
 import { useTerminals } from "../lib/terminal-context";

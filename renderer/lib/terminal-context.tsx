@@ -7,7 +7,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { toast } from "@glaze/core/components";
+import { toast } from "@renderer/ui";
 
 import { baseName } from "./format";
 import { createTerminal, killTerminal, onTerminalExit, writeTerminal } from "./terminal-api";

@@ -1,5 +1,5 @@
 import { useEffect, useRef, type MutableRefObject } from "react";
-import { cn } from "@glaze/core/utils";
+import { cn } from "@renderer/ui";
 
 import type { GraphData, GraphNode } from "../../lib/graph-data";
 import { GraphEngine, type GraphPalette } from "./graph-engine";

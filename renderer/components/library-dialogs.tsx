@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { AlertDialog, Dialog, Input, Text, toast } from "@glaze/core/components";
+import { AlertDialog, Dialog, Input, Text, toast } from "@renderer/ui";
 
 import type { LibraryItem, LibrarySnapshot, ProjectSummary } from "@main/shared/types";
 

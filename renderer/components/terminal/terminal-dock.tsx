@@ -6,8 +6,9 @@ import {
   type PointerEvent as ReactPointerEvent,
 } from "react";
 import { Plus, X } from "lucide-react";
-import { Button, Text } from "@glaze/core/components";
+import { Button, Text } from "@renderer/ui";
 
+import { getPathForFile } from "../../lib/bridge";
 import { DROP_TEXT_EVENT } from "../../lib/item-drag";
 import { shellQuote } from "../../lib/resume";
 import { useTerminals } from "../../lib/terminal-context";
@@ -15,6 +16,10 @@ import { TerminalView } from "./terminal-view";
 
 const MIN_WIDTH = 320;
 const DEFAULT_WIDTH = 520;
+/** The library pane beside the terminal never gets narrower than this (its toolbar fits). */
+const MAIN_MIN_WIDTH = 460;
+/** In a very small window the terminal yields down to this. */
+const SQUEEZED_WIDTH = 240;
 /** Matches the primary toolbar height so the panel lines up with it. */
 const HEADER = 52;
 
@@ -28,6 +33,7 @@ export function TerminalDock() {
   const { tabs, activeId, open, openTerminal, insertText, closeTab, setActive, setOpen } =
     useTerminals();
   const [width, setWidth] = useState(DEFAULT_WIDTH);
+  const [available, setAvailable] = useState(Number.POSITIVE_INFINITY);
   const [dropping, setDropping] = useState(false);
   const resizeRef = useRef<{ x: number; width: number } | null>(null);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -35,6 +41,16 @@ export function TerminalDock() {
   useEffect(() => {
     insertRef.current = insertText;
   });
+
+  // Track the space shared with the library pane, so the terminal can't squeeze it.
+  useEffect(() => {
+    const parent = rootRef.current?.parentElement;
+    if (!parent) return;
+    const observer = new ResizeObserver(([entry]) => setAvailable(entry.contentRect.width));
+    observer.observe(parent);
+    return () => observer.disconnect();
+  }, [tabs.length > 0]);
+  const shownWidth = Math.max(SQUEEZED_WIDTH, Math.min(width, available - MAIN_MIN_WIDTH));
 
   // Timeline bars and graph nodes arrive through the in-app item drag (see item-drag.ts).
   useEffect(() => {
@@ -51,13 +67,13 @@ export function TerminalDock() {
   if (tabs.length === 0) return null;
 
   const handleResizeStart = (event: ReactPointerEvent<HTMLDivElement>) => {
-    resizeRef.current = { x: event.clientX, width };
+    resizeRef.current = { x: event.clientX, width: shownWidth };
     event.currentTarget.setPointerCapture(event.pointerId);
   };
   const handleResizeMove = (event: ReactPointerEvent<HTMLDivElement>) => {
     const start = resizeRef.current;
     if (!start) return;
-    const max = Math.max(MIN_WIDTH, window.innerWidth - 420);
+    const max = Math.max(MIN_WIDTH, available - MAIN_MIN_WIDTH);
     setWidth(Math.min(max, Math.max(MIN_WIDTH, start.width + (start.x - event.clientX))));
   };
 
@@ -75,9 +91,7 @@ export function TerminalDock() {
     event.preventDefault();
     event.stopPropagation();
     setDropping(false);
-    const paths = [...event.dataTransfer.files]
-      .map((file) => window.glazeAPI.webUtils.getPathForFile(file))
-      .filter(Boolean);
+    const paths = [...event.dataTransfer.files].map((file) => getPathForFile(file)).filter(Boolean);
     const text =
       paths.length > 0 ? paths.map(shellQuote).join(" ") : event.dataTransfer.getData("text/plain");
     if (text) void insertText(text);
@@ -87,10 +101,12 @@ export function TerminalDock() {
     <div
       ref={rootRef}
       data-drop-target="terminal"
-      className={`group relative flex h-full shrink-0 flex-col border-l border-separator bg-window-bg ${
+      // no-drag: Electron's window-drag areas ignore stacking, so a toolbar drag region next to
+      // (or stale under) this panel would otherwise swallow clicks on its tabs and buttons.
+      className={`group relative flex h-full shrink-0 flex-col border-l border-separator bg-terminal [-webkit-app-region:no-drag] ${
         open ? "" : "hidden"
       }`}
-      style={{ width }}
+      style={{ width: shownWidth }}
       onDragOver={handleDragOver}
       onDragLeave={(event) => {
         if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setDropping(false);
@@ -105,13 +121,14 @@ export function TerminalDock() {
         aria-hidden
       />
 
-      <div className="flex shrink-0 items-end gap-1 px-2 pb-1.5" style={{ height: HEADER }}>
+      {/* The header drags the window like the toolbar beside it; tabs and buttons stay clickable. */}
+      <div className="drag-region flex shrink-0 items-center gap-1 px-2" style={{ height: HEADER }}>
         <div className="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto">
           {tabs.map((tab) => (
             <div
               key={tab.id}
               className={`flex shrink-0 items-center gap-1 rounded-md pr-1 pl-2 ${
-                tab.id === activeId ? "bg-surface-control" : ""
+                tab.id === activeId ? "bg-control-subtle" : ""
               }`}
             >
               <button

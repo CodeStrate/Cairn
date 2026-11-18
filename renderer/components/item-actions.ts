@@ -1,5 +1,5 @@
 import type { DragEvent } from "react";
-import { toast } from "@glaze/core/components";
+import { toast } from "@renderer/ui";
 
 import type { LibraryItem, SessionSummary } from "@main/shared/types";
 

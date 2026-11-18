@@ -16,7 +16,7 @@ import {
   Switch,
   Text,
   toast,
-} from "@glaze/core/components";
+} from "@renderer/ui";
 
 import type {
   HandoffResult,

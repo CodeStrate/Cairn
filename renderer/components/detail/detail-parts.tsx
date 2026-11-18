@@ -10,7 +10,7 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
   Text,
-} from "@glaze/core/components";
+} from "@renderer/ui";
 
 import type { LibraryItem } from "@main/shared/types";
 

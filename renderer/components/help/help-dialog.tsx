@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { Button, Dialog, Text } from "@glaze/core/components";
+import { Button, Dialog, Text } from "@renderer/ui";
 
 interface HelpDialogProps {
   onClose: () => void;

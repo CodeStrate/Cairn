@@ -10,7 +10,7 @@ import {
   Text,
   Textarea,
   toast,
-} from "@glaze/core/components";
+} from "@renderer/ui";
 
 import type { LibraryItem, LibrarySnapshot, MemorySummary } from "@main/shared/types";
 

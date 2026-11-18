@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { Button, Text } from "@glaze/core/components";
+import { Button, Text } from "@renderer/ui";
 
 import type { ViewMode } from "../../lib/search";
 import type { TourStep } from "./tour-steps";
