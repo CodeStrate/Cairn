@@ -12,6 +12,7 @@ function comboKeys(...keys: string[]): string {
 
 export const SHORTCUTS = {
   settings: comboKeys(MOD_KEY, ","),
+  save: comboKeys(MOD_KEY, "S"),
   help: comboKeys(MOD_KEY, "?"),
   search: comboKeys(MOD_KEY, "F"),
   sidebar: isMac ? comboKeys("⌃", "⌘", "S") : comboKeys("Ctrl", "Alt", "S"),
