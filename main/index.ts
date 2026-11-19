@@ -6,7 +6,7 @@ import type { BrowserWindow, MenuItemConstructorOptions } from "electron";
 import { app, ipcMain, logger, Menu } from "./electron/runtime.js";
 import { registerHandlers } from "./handlers/index.js";
 import { applySavedTheme } from "./handlers/theme.js";
-import { openSettingsWindow } from "./windows/settings-window.js";
+import { getSettingsWindow, openSettingsWindow } from "./windows/settings-window.js";
 import { createSecureWindow } from "./windows/secure-window.js";
 import { getAppIconPath, getWindowUrl } from "./windows/window-paths.js";
 
@@ -36,6 +36,9 @@ async function createMainWindow(): Promise<void> {
   });
   mainWindow.on("closed", () => {
     mainWindow = null;
+    // Settings belongs to the main window: close it too (and on Windows/Linux this lets
+    // window-all-closed quit the app instead of leaving a lone Settings window behind).
+    getSettingsWindow()?.close();
   });
   await mainWindow.loadURL(getWindowUrl("main-window.html"));
 }
