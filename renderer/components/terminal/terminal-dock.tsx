@@ -27,7 +27,7 @@ const HEADER = 52;
  * Right-side terminal panel. Tabs stay mounted while hidden so scrollback survives
  * switching tabs or closing the panel. Whatever is dropped on it is typed at the prompt
  * without pressing Enter: list rows and timeline/graph items (a path or a resume
- * command), and files from Finder (their quoted paths).
+ * command), and files from the file manager (their quoted paths).
  */
 export function TerminalDock() {
   const { tabs, activeId, open, openTerminal, insertText, closeTab, setActive, setOpen } =
@@ -79,7 +79,7 @@ export function TerminalDock() {
 
   const accepts = (event: DragEvent) =>
     event.dataTransfer.types.includes("Files") || event.dataTransfer.types.includes("text/plain");
-  // This zone owns its drops; the window-level Finder import skips drags over it.
+  // This zone owns its drops; the window-level file import skips drags over it.
   const handleDragOver = (event: DragEvent) => {
     if (!accepts(event)) return;
     event.preventDefault();

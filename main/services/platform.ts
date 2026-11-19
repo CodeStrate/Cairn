@@ -39,6 +39,9 @@ export function loginShellArgs(): string[] {
   return process.platform === "win32" ? [] : ["-l"];
 }
 
+/** What the OS calls its trash, for user-facing messages. */
+export const TRASH_NAME = process.platform === "win32" ? "Recycle Bin" : "Trash";
+
 export function isAbsolutePath(value: string): boolean {
   return path.isAbsolute(value);
 }

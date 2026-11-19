@@ -18,7 +18,6 @@ import {
   type TranscriptEntry,
   type TrashResult,
 } from "../shared/types.js";
-import { scanAider, readAiderSession } from "./harnesses/aider.js";
 import {
   CLAUDE_PROJECTS_DIR,
   CLAUDE_ROOT,
@@ -42,7 +41,7 @@ import {
 } from "./harnesses/opencode.js";
 import { buildHandoff, handoffFileName } from "./handoff.js";
 import { scanProjectMemories } from "./memory-files.js";
-import { isAbsolutePath } from "./platform.js";
+import { isAbsolutePath, TRASH_NAME } from "./platform.js";
 import { getPreferences, updatePreferences, type Preferences } from "./preferences.js";
 import { HOME, pathExists, statOrNull, writeFileAtomic } from "./util.js";
 
@@ -51,7 +50,6 @@ const HARNESS_NAMES: Record<HarnessId, string> = {
   codex: "Codex",
   cursor: "Cursor",
   opencode: "opencode",
-  aider: "Aider",
 };
 
 const MAX_MEMORY_READ_BYTES = 2 * 1024 * 1024;
@@ -77,20 +75,18 @@ async function settle<T>(
 }
 
 async function detectAvailability(): Promise<Record<HarnessId, boolean>> {
-  const [claude, codex, cursor, opencodeData, opencodeConfig, aiderConfig] = await Promise.all([
+  const [claude, codex, cursor, opencodeData, opencodeConfig] = await Promise.all([
     pathExists(CLAUDE_ROOT),
     pathExists(CODEX_ROOT),
     pathExists(CURSOR_USER_DIR),
     pathExists(opencodeStorageDir()),
     pathExists(OPENCODE_CONFIG_DIR),
-    pathExists(path.join(HOME, ".aider.conf.yml")),
   ]);
   return {
     "claude-code": claude,
     codex,
     cursor,
     opencode: opencodeData || opencodeConfig,
-    aider: aiderConfig,
   };
 }
 
@@ -134,14 +130,13 @@ async function buildSnapshot(): Promise<LibrarySnapshot> {
   for (const memory of claude.memories)
     if (memory.cwd && isVisible(memory.cwd)) projectPaths.add(memory.cwd);
 
-  const [aiderSessions, projectMemories] = await Promise.all([
-    scanIfEnabled("aider", [] as SessionSummary[], () => scanAider([...projectPaths, HOME])),
-    Promise.all(
+  const projectMemories = (
+    await Promise.all(
       [...projectPaths].map((projectPath) => scanProjectMemories(projectPath).catch(() => [])),
-    ).then((groups) => groups.flat()),
-  ]);
+    )
+  ).flat();
 
-  const sessions = [...baseSessions, ...aiderSessions]
+  const sessions = baseSessions
     .filter((session) => isVisible(session.cwd))
     .sort((a, b) => b.updatedAt - a.updatedAt);
   const sessionsById = new Map(sessions.map((session) => [session.id, session]));
@@ -277,9 +272,6 @@ export async function getSessionDetail(id: string): Promise<SessionDetail> {
     case "opencode":
       entries = await readOpencodeSession(session);
       break;
-    case "aider":
-      entries = await readAiderSession(session);
-      break;
   }
   return {
     session,
@@ -376,7 +368,7 @@ export async function setProjectHidden(
 
 /**
  * Files that make up one item. Only harnesses that keep each session in its own file can trash
- * sessions; Cursor, opencode, and Aider share storage across sessions.
+ * sessions; Cursor and opencode share storage across sessions.
  */
 async function trashPathsFor(item: SessionSummary | MemorySummary): Promise<string[]> {
   if (item.kind === "memory") {
@@ -391,7 +383,7 @@ async function trashPathsFor(item: SessionSummary | MemorySummary): Promise<stri
     return stat?.isDirectory() ? [item.sourcePath, sidecar] : [item.sourcePath];
   }
   throw new Error(
-    `${HARNESS_NAMES[item.harness]} sessions share storage and can't be moved to the Trash individually`,
+    `${HARNESS_NAMES[item.harness]} sessions share storage and can't be moved to the ${TRASH_NAME} individually`,
   );
 }
 
@@ -410,7 +402,7 @@ async function trashPaths(paths: string[]): Promise<TrashResult> {
       failed.push(target);
     }
   }
-  logger.info("library", `Moved ${trashed} item(s) to the Trash`);
+  logger.info("library", `Moved ${trashed} item(s) to the ${TRASH_NAME}`);
   return { library: await refreshLibrary(), trashed, failed };
 }
 
@@ -421,7 +413,7 @@ export async function trashItem(id: string): Promise<TrashResult> {
     library.memories.find((memory) => memory.id === id);
   if (!item) throw new Error(`Item not found: ${id}`);
   const result = await trashPaths(await trashPathsFor(item));
-  if (result.trashed === 0) throw new Error(`Couldn't move ${item.title} to the Trash`);
+  if (result.trashed === 0) throw new Error(`Couldn't move ${item.title} to the ${TRASH_NAME}`);
   return result;
 }
 
@@ -435,7 +427,8 @@ export async function trashProject(projectPath: string): Promise<TrashResult> {
     const itemPaths = await trashPathsFor(item).catch(() => []);
     paths.push(...itemPaths);
   }
-  if (paths.length === 0) throw new Error("Nothing in this project can be moved to the Trash");
+  if (paths.length === 0)
+    throw new Error(`Nothing in this project can be moved to the ${TRASH_NAME}`);
   return trashPaths(paths);
 }
 
@@ -455,7 +448,7 @@ export async function getHandoff(id: string): Promise<HandoffResult> {
   return { sessionId: session.id, path: file, markdown };
 }
 
-/** Maps a path dropped from Finder onto a library item or project. */
+/** Maps a path dropped from the file manager onto a library item or project. */
 export async function matchPath(target: string): Promise<PathMatch> {
   const library = await getLibrary();
   const session = library.sessions.find((candidate) => candidate.sourcePath === target);
@@ -467,7 +460,7 @@ export async function matchPath(target: string): Promise<PathMatch> {
   return { kind: "none" };
 }
 
-/** Only paths the library already knows about may be revealed in Finder. */
+/** Only paths the library already knows about may be revealed in the file manager. */
 export async function isKnownPath(target: string): Promise<boolean> {
   const library = await getLibrary();
   return (

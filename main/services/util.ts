@@ -259,7 +259,7 @@ export function describeTool(input: unknown, cwd: string | null): string {
 export async function writeFileAtomic(target: string, content: string): Promise<void> {
   const temp = path.join(
     path.dirname(target),
-    `.${path.basename(target)}.cb-${process.pid}-${Date.now()}`,
+    `.${path.basename(target)}.wf-${process.pid}-${Date.now()}`,
   );
   await fs.promises.writeFile(temp, content, "utf8");
   try {

@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { Button, Dialog, Text } from "@renderer/ui";
-import { MOD_KEY, SHORTCUTS } from "@renderer/lib/shortcuts";
+import { getOSLabel, MOD_KEY, SHORTCUTS } from "@renderer/lib/os-labels";
 
 interface HelpDialogProps {
   onClose: () => void;
@@ -57,15 +57,16 @@ export function HelpDialog({ onClose, onStartTour }: HelpDialogProps) {
 
         <Section title="The library">
           <Item term="Harnesses">
-            Claude Code is scanned by default. Add Codex, Cursor, opencode, or Aider with the + next
-            to Harnesses; only the ones you add are read.
+            Claude Code is scanned by default. Add Codex, Cursor, or opencode with the + next to
+            Harnesses; only the ones you add are read.
           </Item>
           <Item term="Projects">
             One per working folder. Right-click to rename, open in the terminal, remove from the
-            library (restore it in Settings), or move its agent data to the Trash.
+            library (restore it in Settings), or move its agent data to the {getOSLabel("trash")}.
           </Item>
           <Item term="Privacy">
-            Everything is read from and written to local files. Nothing leaves your Mac.
+            Everything is read from and written to local files. Nothing leaves your{" "}
+            {getOSLabel("device")}.
           </Item>
         </Section>
 
@@ -89,7 +90,7 @@ export function HelpDialog({ onClose, onStartTour }: HelpDialogProps) {
           </Item>
           <Item term="Resume">
             The terminal button resumes the session in its own folder — Claude Code, Codex, and
-            opencode support this. Cursor and Aider sessions can only open their folder.
+            opencode support this. Cursor sessions can only open their folder.
           </Item>
           <Item term="Handoff">
             Builds a Markdown brief: the goal, open threads, the last turns, files touched, and
@@ -112,11 +113,11 @@ export function HelpDialog({ onClose, onStartTour }: HelpDialogProps) {
           <Item term="Into the terminal">
             Drag a list row, timeline bar, or graph node (drag it past the canvas edge) onto the
             terminal. A memory types its path, a session its resume command — nothing runs until you
-            press Enter. Files from Finder type their paths.
+            press Enter. Files from {getOSLabel("fileManager")} type their paths.
           </Item>
           <Item term="Into Wefty">
-            Drop a session transcript, a memory file, or a known project folder from Finder onto the
-            window to open it.
+            Drop a session transcript, a memory file, or a known project folder from{" "}
+            {getOSLabel("fileManager")} onto the window to open it.
           </Item>
         </Section>
 

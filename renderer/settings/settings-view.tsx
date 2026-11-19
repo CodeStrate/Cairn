@@ -29,6 +29,7 @@ import type { HarnessInfo, ThemeInfo } from "@main/shared/types";
 
 import { errorMessage } from "../components/detail/detail-parts";
 import { invoke } from "../lib/bridge";
+import { getOSLabel } from "@renderer/lib/os-labels";
 import { plural, shortenPath } from "../lib/format";
 import { HARNESS_ORDER } from "../lib/harness";
 import {
@@ -39,7 +40,9 @@ import {
 } from "../lib/library-api";
 
 function harnessDescription(harness: HarnessInfo): string {
-  if (!harness.enabled) return harness.available ? "Found on this Mac" : "Not found on this Mac";
+  const device = getOSLabel("device");
+  if (!harness.enabled)
+    return harness.available ? `Found on this ${device}` : `Not found on this ${device}`;
   return `${plural(harness.sessionCount, "session")} · ${harness.memoryCount} ${
     harness.memoryCount === 1 ? "memory" : "memories"
   }`;

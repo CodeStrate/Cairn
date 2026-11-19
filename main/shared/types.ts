@@ -10,15 +10,9 @@ export interface CreatedTerminal {
   folder: string;
 }
 
-export type HarnessId = "claude-code" | "codex" | "cursor" | "opencode" | "aider";
+export type HarnessId = "claude-code" | "codex" | "cursor" | "opencode";
 
-export const HARNESS_IDS: readonly HarnessId[] = [
-  "claude-code",
-  "codex",
-  "cursor",
-  "opencode",
-  "aider",
-];
+export const HARNESS_IDS: readonly HarnessId[] = ["claude-code", "codex", "cursor", "opencode"];
 
 export interface HarnessInfo {
   id: HarnessId;
@@ -120,7 +114,7 @@ export interface SessionDetail {
 export interface TrashResult {
   library: LibrarySnapshot;
   trashed: number;
-  /** Paths that could not be moved to the Trash. */
+  /** Paths that could not be moved to the trash (Trash / Recycle Bin). */
   failed: string[];
 }
 
@@ -136,7 +130,7 @@ export interface HandoffResult {
   markdown: string;
 }
 
-/** What a path dropped from Finder refers to in the library, if anything. */
+/** What a path dropped from the file manager refers to in the library, if anything. */
 export type PathMatch =
   | { kind: "item"; id: string }
   | { kind: "project"; path: string }

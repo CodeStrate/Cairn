@@ -32,6 +32,7 @@ import { getHandoff, useSessionDetail } from "../../lib/library-api";
 import { resumeSpec, shellQuote } from "../../lib/resume";
 import { projectLabel } from "../../lib/scope";
 import { useTerminals } from "../../lib/terminal-context";
+import { getOSLabel } from "../../lib/os-labels";
 import { copyWithToast, openFolderInTerminal, resumeInTerminal, revealPath } from "../item-actions";
 import { HarnessBadge } from "../item-visuals";
 import {
@@ -258,7 +259,7 @@ export function SessionDetailPane({
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem icon="folder" onSelect={() => revealPath(session.sourcePath)}>
-              Reveal in Finder
+              {getOSLabel("reveal")}
             </DropdownMenuItem>
             <DropdownMenuItem
               icon="terminal"
@@ -286,7 +287,7 @@ export function SessionDetailPane({
               disabled={!canTrash(session)}
               onSelect={() => onRequestTrash(session)}
             >
-              Move to Trash…
+              Move to {getOSLabel("trash")}…
             </DropdownMenuItem>
           </MoreActionsMenu>
           <Button aria-label="Close" title="Close" onClick={onClose}>

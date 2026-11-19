@@ -3,7 +3,7 @@ import type { SessionSummary } from "@main/shared/types";
 /**
  * How to continue a session in a terminal, per harness. The command runs inside the
  * session's own folder (the terminal is opened there), so no `cd` is needed.
- * Cursor and Aider have no resumable CLI session, so they only get a terminal in the folder.
+ * Cursor has no resumable CLI session, so it only gets a terminal in the folder.
  */
 export interface ResumeSpec {
   cwd: string | null;
