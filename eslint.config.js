@@ -33,4 +33,22 @@ export default [
     files: ["scripts/**/*.mjs"],
     languageOptions: { globals: globals.node },
   },
+
+  {
+  files: ["renderer/**/*.ts", "renderer/**/*.tsx"],
+  rules: {
+    "@typescript-eslint/no-restricted-imports": [
+      "error",
+      {
+        patterns: [
+          {
+            group: ["@main/*", "**/main/*"],
+            allowTypeImports: true,
+            message: "The renderer can't run main-process code (it uses Node). Use `import type`, or get the value over IPC.",
+          },
+        ],
+      },
+    ],
+  },
+},
 ];

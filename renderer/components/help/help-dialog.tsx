@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { Button, Dialog, Text } from "@renderer/ui";
+import { MOD_KEY, SHORTCUTS } from "@renderer/lib/shortcuts";
 
 interface HelpDialogProps {
   onClose: () => void;
@@ -72,7 +73,7 @@ export function HelpDialog({ onClose, onStartTour }: HelpDialogProps) {
           <Item term="Timeline">
             A lane per project. Bars are sessions, from first to last message; diamonds are memory
             files at their last edit. Hover lights up related items. Drag empty space or scroll
-            sideways to pan, <Keys>⌘</Keys>-scroll or pinch to zoom, and Fit to reset.
+            sideways to pan, <Keys>{MOD_KEY}</Keys>-scroll or pinch to zoom, and Fit to reset.
           </Item>
           <Item term="Graph">
             Projects anchor clusters; dashed links join memories that reference each other and
@@ -121,10 +122,16 @@ export function HelpDialog({ onClose, onStartTour }: HelpDialogProps) {
 
         <Section title="Shortcuts">
           <Item term="Settings">
-            <Keys>⌘ ,</Keys>
+            <Keys>{SHORTCUTS.settings}</Keys>
           </Item>
           <Item term="Help">
-            <Keys>⌘ ?</Keys>
+            <Keys>{SHORTCUTS.help}</Keys>
+          </Item>
+          <Item term="Search">
+            <Keys>{SHORTCUTS.search}</Keys>
+          </Item>
+          <Item term="Show or hide the sidebar">
+            <Keys>{SHORTCUTS.sidebar}</Keys>
           </Item>
           <Item term="Tour">
             <Keys>←</Keys> <Keys>→</Keys> to move, <Keys>Esc</Keys> to leave.

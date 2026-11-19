@@ -1,4 +1,4 @@
-import { Brain, Folder, Layers, MessagesSquare, Plus, RefreshCw } from "lucide-react";
+import { Brain, Folder, Layers, MessagesSquare, Plus, RefreshCw, Settings } from "lucide-react";
 import {
   Button,
   ContextMenu,
@@ -28,6 +28,7 @@ import { revealPath } from "./item-actions";
 import { useTerminals } from "../lib/terminal-context";
 import type { LibraryAction } from "./library-dialogs";
 import { HarnessDot } from "./item-visuals";
+import { invoke } from "@renderer/lib/bridge";
 
 interface AppSidebarProps {
   library: LibrarySnapshot | undefined;
@@ -106,14 +107,25 @@ export function AppSidebar({
   return (
     <Sidebar
       actions={
-        <Button
-          aria-label="Rescan agent folders"
-          title="Rescan agent folders"
-          onClick={onRescan}
-          disabled={rescanning}
-        >
-          <RefreshCw className={rescanning ? "animate-spin" : undefined} />
-        </Button>
+        <>
+          <Button
+            aria-label="Rescan agent folders"
+            title="Rescan agent folders"
+            onClick={onRescan}
+            disabled={rescanning}
+          >
+            <RefreshCw className={rescanning ? "animate-spin" : undefined} />
+          </Button>
+          <span data-tour="settings" className="flex">
+            <Button
+              aria-label="Settings"
+              title="Settings"
+              onClick={() => void invoke("window:openSettings")}
+            >
+              <Settings />
+            </Button>
+          </span>
+        </>
       }
       footer={
         library ? (

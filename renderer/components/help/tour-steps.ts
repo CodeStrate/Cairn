@@ -1,3 +1,4 @@
+import { MOD_KEY, SHORTCUTS } from "@renderer/lib/shortcuts";
 import type { ViewMode } from "../../lib/search";
 
 /**
@@ -5,6 +6,7 @@ import type { ViewMode } from "../../lib/search";
  * whose target isn't on screen (or has no target) shows as a centred card instead, so the
  * tour never gets stuck when a panel is closed.
  */
+
 export interface TourStep {
   target?: string;
   /** Switch to this view before showing the step. */
@@ -32,7 +34,7 @@ export const TOUR_STEPS: TourStep[] = [
     target: "main",
     currentviewMode: "river",
     title: "Timeline",
-    body: "One lane per project, newest activity on top. Bars are sessions, from first to last message, coloured by harness; diamonds are memory files at their last edit (hollow ones were written by an agent). Hover to light up related items, click to open one. Drag empty space or scroll sideways to pan, ⌘-scroll or pinch to zoom, and Fit to reset.",
+    body: `One lane per project, newest activity on top. Bars are sessions, from first to last message, coloured by harness; diamonds are memory files at their last edit (hollow ones were written by an agent). Hover to light up related items, click to open one. Drag empty space or scroll sideways to pan, ${MOD_KEY}-scroll or pinch to zoom, and Fit to reset.`,
   },
   {
     target: "main",
@@ -65,6 +67,11 @@ export const TOUR_STEPS: TourStep[] = [
     target: "main",
     title: "Hand a session off",
     body: "Open a session to read its transcript (searchable, tools can be hidden). Its ⋯ menu builds a Markdown handoff you can copy, drop into the terminal, or use to continue the work in Claude Code or Codex — even if it started in another harness.",
+  },
+  {
+    target: "settings",
+    title: "Open Settings",
+    body: ` Pick a theme for the whole app and terminal, switch Light/Dark, and choose which harnesses Wefty scans. Open it with the gear in the sidebar or ${SHORTCUTS.settings}.`,
   },
   {
     target: "help",

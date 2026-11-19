@@ -7,6 +7,7 @@ export interface CreatedTerminal {
   id: string;
   cwd: string;
   shell: string;
+  folder: string;
 }
 
 export type HarnessId = "claude-code" | "codex" | "cursor" | "opencode" | "aider";

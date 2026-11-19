@@ -9,10 +9,8 @@ import {
 } from "react";
 import { toast } from "@renderer/ui";
 
-import { baseName } from "./format";
 import { createTerminal, killTerminal, onTerminalExit, writeTerminal } from "./terminal-api";
 import { forgetTerminal, startRecording } from "./terminal-bus";
-import { HOME } from "@main/services/platform";
 
 export interface TerminalTab {
   id: string;
@@ -69,8 +67,7 @@ export function TerminalProvider({ children }: { children: ReactNode }) {
         cwd: options.cwd ?? null,
         command: options.command ?? null,
       });
-      const currentDirectory = created.cwd === HOME ? "~" : baseName(created.cwd);
-      const title = options.title ?? `${created.shell} - ${currentDirectory}`;
+      const title = options.title ?? `${created.shell} - ${created.folder}`;
       setTabs((current) => [
         ...current,
         { id: created.id, title, cwd: created.cwd, exited: false },

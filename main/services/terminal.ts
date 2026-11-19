@@ -123,7 +123,12 @@ export function createTerminal(options: CreateTerminalOptions): CreatedTerminal 
   });
 
   if (options.command) proc.write(`${options.command}\r`);
-  return { id, cwd, shell: path.parse(shell).name };
+  return {
+    id,
+    cwd,
+    shell: path.parse(shell).name,
+    folder: cwd === HOME ? "~" : path.basename(cwd),
+  };
 }
 
 function requireSession(id: string): Session {
