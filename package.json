@@ -1,9 +1,9 @@
 {
   "name": "wefty",
-  "version": "0.0.1-alpha",
+  "version": "0.1.0-alpha",
   "homepage": "https://github.com/CodeStrate/Wefty",
   "productName": "Wefty",
-  "description": "A local library of your coding agents' sessions and memories \u2014 and when one agent stops (usage limits, outages), pick the work up in another.",
+  "description": "A local library of your coding agents' sessions and memories — and when one agent stops (usage limits, outages), pick the work up in another.",
   "keywords": [
     "coding-agents",
     "claude-code",
@@ -81,11 +81,11 @@
   "build": {
     "appId": "app.wefty.desktop",
     "productName": "Wefty",
-    "publish" : {
-      "provider" : "github",
-      "owner" : "CodeStrate",
-      "repo" : "Wefty",
-      "releaseType" : "draft"
+    "publish": {
+      "provider": "github",
+      "owner": "CodeStrate",
+      "repo": "Wefty",
+      "releaseType": "draft"
     },
     "directories": {
       "output": "release",
