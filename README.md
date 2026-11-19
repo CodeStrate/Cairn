@@ -1,6 +1,7 @@
 <div align="center">
   <!-- Logo: replace with the final artwork, e.g. docs/assets/wefty-logo.png -->
   <!-- <img width="160" height="160" alt="Wefty logo" src="docs/assets/wefty-logo.png" /> -->
+  <img width="160" height="160" alt="Wefty logo" src="build-resources/icon.png" />
   <h1>Wefty</h1>
   <p>One local library for everything your coding agents remember.</p>
 
