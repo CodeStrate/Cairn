@@ -15,12 +15,3 @@ export function onNotification<T = unknown>(channel: string, listener: (payload:
 export function getPathForFile(file: File): string {
   return window.wefty.getPathForFile(file);
 }
-
-export const isMac = () => window.wefty.platform === "darwin";
-
-/** "Finder" on macOS, "File Explorer" on Windows, "Files" elsewhere — for user-facing labels. */
-export function fileManagerName(): string {
-  if (window.wefty.platform === "darwin") return "Finder";
-  if (window.wefty.platform === "win32") return "File Explorer";
-  return "Files";
-}

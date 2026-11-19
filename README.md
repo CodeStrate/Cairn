@@ -24,7 +24,7 @@ Wefty does three things:
 
 It isn't an agent and it isn't a sync service. It reads and writes **your local files**, runs your shell in its terminal, and does nothing else.
 
-> **Alpha.** Builds are unsigned and Cursor, opencode, and Aider support is untested. Expect rough edges — [issues](https://github.com/CodeStrate/Wefty/issues) are very welcome.
+> **Alpha.** Builds are unsigned and Cursor and opencode support is untested. Expect rough edges — [issues](https://github.com/CodeStrate/Wefty/issues) are very welcome.
 
 [Download](#download) · [Features](#features) · [Harnesses](#supported-harnesses) · [Build from Source](#build-from-source) · [How It Works](#how-it-works) · [Privacy](#privacy) · [Stack](#stack) · [Development](#development) · [Contributing](#contributing) · [Roadmap](#roadmap)
 
@@ -95,9 +95,8 @@ The tour starts on first launch; replay it any time from **Help → Show Tour**.
 | Codex CLI | `~/.codex/sessions/**/rollout-*.jsonl` | `AGENTS.md`, generated memories | Sessions tested; DB memories untested |
 | Cursor | `state.vscdb` composer history | `.cursorrules`, `.cursor/rules`, `AGENTS.md` | Untested |
 | opencode | `~/.local/share/opencode/storage` | `AGENTS.md` | Untested |
-| Aider | `.aider.chat.history.md` | `CONVENTIONS.md` | Untested |
 
-Only Claude Code is scanned by default. Add others from the **+** next to *Harnesses* in the sidebar, or in Settings. Reports from Cursor, opencode, and Aider users are very welcome.
+Only Claude Code is scanned by default. Add others from the **+** next to *Harnesses* in the sidebar, or in Settings. Reports from Cursor and opencode users are very welcome.
 
 ## Build from Source
 
@@ -145,7 +144,7 @@ Each tab is a login shell (`$SHELL` on macOS/Linux, `%COMSPEC%` on Windows) in a
 | Claude Code | `claude --resume <id>` |
 | Codex | `codex resume <id>` |
 | opencode | `opencode --session <id>` |
-| Cursor, Aider | No CLI resume — opens a terminal in the folder |
+| Cursor | No CLI resume — opens a terminal in the folder |
 
 ### Handoff
 
@@ -157,7 +156,7 @@ Every colour is a CSS token (`--wf-*`). The default theme derives them from blac
 
 ## Privacy
 
-Wefty never sends your data anywhere. Everything is read from and written to local files. It only writes inside an agent's folders when you ask it to — saving a memory you edited, or moving something to the Trash after a confirmation.
+Wefty never sends your data anywhere. Everything is read from and written to local files. It only writes inside an agent's folders when you ask it to — saving a memory you edited, or moving something to the Trash / Recycle Bin after a confirmation.
 
 ## Stack
 

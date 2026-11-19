@@ -1,4 +1,4 @@
-import { MOD_KEY, SHORTCUTS } from "@renderer/lib/shortcuts";
+import { getOSLabel, MOD_KEY, SHORTCUTS } from "@renderer/lib/os-labels";
 import type { ViewMode } from "../../lib/search";
 
 /**
@@ -46,7 +46,7 @@ export const TOUR_STEPS: TourStep[] = [
     target: "main",
     currentviewMode: "list",
     title: "List",
-    body: "Everything in one column, grouped by date, with project, age, and message count at a glance. Right-click a row to resume it in the terminal, open its folder, copy its path or resume command, reveal it in Finder, or move it to the Trash.",
+    body: `Everything in one column, grouped by date, with project, age, and message count at a glance. Right-click a row to resume it in the terminal, open its folder, copy its path or resume command, show it in ${getOSLabel("fileManager")}, or move it to the ${getOSLabel("trash")}.`,
   },
   {
     target: "search",
@@ -61,7 +61,7 @@ export const TOUR_STEPS: TourStep[] = [
   {
     target: "main",
     title: "Drag and drop",
-    body: "Drag a row, timeline bar, or graph node (past the canvas edge) onto the terminal to type its path or resume command — nothing runs until you press Enter. Drop a session or memory file from Finder onto Wefty to open it.",
+    body: `Drag a row, timeline bar, or graph node (past the canvas edge) onto the terminal to type its path or resume command — nothing runs until you press Enter. Drop a session or memory file from ${getOSLabel("fileManager")} onto Wefty to open it.`,
   },
   {
     target: "main",

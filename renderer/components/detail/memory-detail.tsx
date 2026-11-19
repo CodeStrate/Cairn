@@ -17,7 +17,7 @@ import type { LibraryItem, LibrarySnapshot, MemorySummary } from "@main/shared/t
 import { formatBytes, formatDateTime, relativeTime, shortenPath } from "../../lib/format";
 import { HARNESS_STYLES, MEMORY_TYPE_LABELS, canTrash, isVirtualPath } from "../../lib/harness";
 import { useMemoryDetail, useSaveMemory } from "../../lib/library-api";
-import { SHORTCUTS } from "../../lib/shortcuts";
+import { getOSLabel, SHORTCUTS } from "../../lib/os-labels";
 import { findItem, projectLabel } from "../../lib/scope";
 import { copyWithToast, revealPath } from "../item-actions";
 import {
@@ -140,7 +140,7 @@ export function MemoryDetailPane({
               disabled={isVirtual}
               onSelect={() => revealPath(memory.path)}
             >
-              Reveal in Finder
+              {getOSLabel("reveal")}
             </DropdownMenuItem>
             <DropdownMenuItem
               icon="doc.on.doc"
@@ -155,7 +155,7 @@ export function MemoryDetailPane({
               disabled={!canTrash(memory)}
               onSelect={() => onRequestTrash(memory)}
             >
-              Move to Trash…
+              Move to {getOSLabel("trash")}…
             </DropdownMenuItem>
           </MoreActionsMenu>
           <Button aria-label="Close" title="Close" onClick={onClose}>

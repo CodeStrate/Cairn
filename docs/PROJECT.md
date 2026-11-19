@@ -7,7 +7,7 @@ updated: 2026-10-08
 
 # Cairn — Project Memory
 
-Cairn is a macOS app that gathers what coding agents leave on disk — session transcripts, memories, and project context files — from Claude Code, Codex CLI, Cursor, opencode, and Aider into one library with a list, an Obsidian-style graph, and an inspector/editor. The long-term goal is to carry any session or memory into any harness.
+Cairn is a macOS app that gathers what coding agents leave on disk — session transcripts, memories, and project context files — from Claude Code, Codex CLI, Cursor, and opencode into one library with a list, an Obsidian-style graph, and an inspector/editor. The long-term goal is to carry any session or memory into any harness.
 
 Read [HANDOFF.md](HANDOFF.md) for current status and the next phases.
 
@@ -82,7 +82,6 @@ Every mutation rebuilds the snapshot and broadcasts `library:changed`, so the ma
 | Codex | `~/.codex/sessions/**/rollout-*.jsonl` (+ `session_index.jsonl` titles) | `~/.codex/AGENTS.md`, `memories_N.sqlite` | sessions ✅, DB memories ❌ |
 | Cursor | `<config>/Cursor/User/globalStorage/state.vscdb` (`composerData:*`, `bubbleId:*`) | `.cursorrules`, `.cursor/rules` | ❌ |
 | opencode | `~/.local/share/opencode/storage/{session,message,part}` | `AGENTS.md` | ❌ |
-| Aider | `<project>/.aider.chat.history.md` | `CONVENTIONS.md` | ❌ |
 
 Claude encodes a cwd into its projects folder name lossily (`/`, `.`, `_` all become `-`); `resolveEncodedClaudeDir()` walks the filesystem to recover the real path.
 

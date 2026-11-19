@@ -128,7 +128,7 @@ export function useTrashItem() {
   );
 }
 
-export function revealInFinder(path: string): Promise<void> {
+export function revealInFileManager(path: string): Promise<void> {
   return ipc().invoke<void>("item:reveal", { path });
 }
 

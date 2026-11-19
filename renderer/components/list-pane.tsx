@@ -27,6 +27,7 @@ import {
   revealPath,
 } from "./item-actions";
 import { HarnessBadge, ItemIcon } from "./item-visuals";
+import { getOSLabel } from "@renderer/lib/os-labels";
 
 interface ListPaneProps {
   toolbar: ReactNode;
@@ -138,7 +139,7 @@ export function ListPane({
                       disabled={!canReveal(item)}
                       onSelect={() => revealPath(itemPath(item))}
                     >
-                      Reveal in Finder
+                      {getOSLabel("reveal")}
                     </ContextMenuItem>
                     {item.kind === "session" ? (
                       <ContextMenuItem
@@ -181,7 +182,7 @@ export function ListPane({
                       disabled={!canTrash(item)}
                       onSelect={() => onRequestTrash(item)}
                     >
-                      Move to Trash…
+                      Move to {getOSLabel("trash")}…
                     </ContextMenuItem>
                   </ContextMenuContent>
                 </ContextMenu>

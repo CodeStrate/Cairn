@@ -6,7 +6,11 @@ import type { LibraryItem, LibrarySnapshot, ProjectSummary } from "@main/shared/
 import { baseName, plural, shortenPath } from "../lib/format";
 import { canTrash } from "../lib/harness";
 import { useRenameProject, useTrashItem, useTrashProject } from "../lib/library-api";
+import { getOSLabel } from "../lib/os-labels";
 import { errorMessage } from "./detail/detail-parts";
+
+/** "Trash" or "Recycle Bin", depending on the OS. */
+const TRASH = getOSLabel("trash");
 
 export type LibraryAction =
   | { kind: "rename-project"; project: ProjectSummary }
@@ -109,25 +113,25 @@ function TrashProjectDialog({
   const skipped = items.length - trashable.length;
 
   const parts = [
-    `${plural(sessions, "session")} and ${plural(memories, "memory file")} will be moved to the Trash`,
+    `${plural(sessions, "session")} and ${plural(memories, "memory file")} will be moved to the ${TRASH}`,
   ];
   if (insideProject)
     parts[0] += ", including context files inside the project folder such as CLAUDE.md";
   parts[0] += ".";
   if (skipped > 0) parts.push(`${plural(skipped, "item")} kept in shared databases will stay.`);
-  parts.push("You can restore everything from the Trash.");
+  parts.push(`You can restore everything from the ${TRASH}.`);
 
   const handleConfirm = async () => {
     try {
       const result = await trash.mutateAsync({ path: project.path });
       if (result.failed.length > 0) {
-        toast.error(`${plural(result.failed.length, "file")} couldn't be moved to the Trash`);
+        toast.error(`${plural(result.failed.length, "file")} couldn't be moved to the ${TRASH}`);
       } else {
-        toast.success(`Moved ${project.name} data to the Trash`);
+        toast.success(`Moved ${project.name} data to the ${TRASH}`);
       }
       onTrashed(project.path);
     } catch (error) {
-      toast.error(`Couldn't move to the Trash: ${errorMessage(error)}`);
+      toast.error(`Couldn't move to the ${TRASH}: ${errorMessage(error)}`);
     }
   };
 
@@ -137,13 +141,13 @@ function TrashProjectDialog({
       onOpenChange={(open) => {
         if (!open) onClose();
       }}
-      title={`Move ${quoted(project.name)} Data to the Trash?`}
+      title={`Move ${quoted(project.name)} Data to the ${TRASH}?`}
       description={
         trashable.length > 0
           ? parts.join(" ")
-          : "Nothing in this project can be moved to the Trash."
+          : `Nothing in this project can be moved to the ${TRASH}.`
       }
-      confirmLabel="Move to Trash"
+      confirmLabel={`Move to ${TRASH}`}
       confirmVariant="destructive"
       confirmDisabled={trashable.length === 0}
       onConfirm={handleConfirm}
@@ -165,16 +169,16 @@ function TrashItemDialog({
   const trash = useTrashItem();
   const description =
     item.kind === "session"
-      ? "The session transcript will be moved to the Trash and can no longer be resumed until you restore it."
-      : `${shortenPath(item.path, library.home)} will be moved to the Trash, so agents stop reading it. You can restore it from the Trash.`;
+      ? `The session transcript will be moved to the ${TRASH} and can no longer be resumed until you restore it.`
+      : `${shortenPath(item.path, library.home)} will be moved to the ${TRASH}, so agents stop reading it. You can restore it from the ${TRASH}.`;
 
   const handleConfirm = async () => {
     try {
       await trash.mutateAsync({ id: item.id });
-      toast.success(`Moved ${quoted(item.title, 40)} to the Trash`);
+      toast.success(`Moved ${quoted(item.title, 40)} to the ${TRASH}`);
       onTrashed(item.id);
     } catch (error) {
-      toast.error(`Couldn't move to the Trash: ${errorMessage(error)}`);
+      toast.error(`Couldn't move to the ${TRASH}: ${errorMessage(error)}`);
     }
   };
 
@@ -184,9 +188,9 @@ function TrashItemDialog({
       onOpenChange={(open) => {
         if (!open) onClose();
       }}
-      title={`Move ${quoted(item.title)} to the Trash?`}
+      title={`Move ${quoted(item.title)} to the ${TRASH}?`}
       description={description}
-      confirmLabel="Move to Trash"
+      confirmLabel={`Move to ${TRASH}`}
       confirmVariant="destructive"
       onConfirm={handleConfirm}
     />

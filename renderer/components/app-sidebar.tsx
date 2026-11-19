@@ -26,6 +26,7 @@ import { HARNESS_ORDER, HARNESS_STYLES } from "../lib/harness";
 import { projectScope } from "../lib/scope";
 import { revealPath } from "./item-actions";
 import { useTerminals } from "../lib/terminal-context";
+import { getOSLabel } from "@renderer/lib/os-labels";
 import type { LibraryAction } from "./library-dialogs";
 import { HarnessDot } from "./item-visuals";
 import { invoke } from "@renderer/lib/bridge";
@@ -75,7 +76,7 @@ function AddHarnessMenu({
         {harnesses.map((harness) => (
           <DropdownMenuItem
             key={harness.id}
-            sublabel={harness.available ? "Found on this Mac" : "Not found on this Mac"}
+            sublabel={`${harness.available ? "Found" : "Not found"} on this ${getOSLabel("device")}`}
             onSelect={() => onAdd(harness.id)}
           >
             {harness.name}
@@ -181,7 +182,9 @@ export function AppSidebar({
                   <SidebarListItem
                     icon={<HarnessDot harness={harness.id} />}
                     title={HARNESS_STYLES[harness.id].name}
-                    subtitle={harness.available ? undefined : "Not found on this Mac"}
+                    subtitle={
+                      harness.available ? undefined : `Not found on this ${getOSLabel("device")}`
+                    }
                     accessory={count ? count : undefined}
                     selected={scope === `harness:${harness.id}`}
                     onClick={() => onScopeChange(`harness:${harness.id}`)}
@@ -222,7 +225,7 @@ export function AppSidebar({
                     Rename…
                   </ContextMenuItem>
                   <ContextMenuItem icon="folder" onSelect={() => revealPath(project.path)}>
-                    Reveal in Finder
+                    {getOSLabel("reveal")}
                   </ContextMenuItem>
                   <ContextMenuItem
                     icon="terminal"
@@ -238,7 +241,7 @@ export function AppSidebar({
                     icon="trash"
                     onSelect={() => onAction({ kind: "trash-project", project })}
                   >
-                    Move Project Data to Trash…
+                    Move Project Data to {getOSLabel("trash")}…
                   </ContextMenuItem>
                 </ContextMenuContent>
               </ContextMenu>
