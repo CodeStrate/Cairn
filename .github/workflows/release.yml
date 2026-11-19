@@ -1,0 +1,54 @@
+name: Release
+
+# Runs only when a version tag (v0.0.1-alpha, v0.1.0, …) is pushed — never on ordinary pushes.
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write # lets the built-in token create the (draft) release and upload files
+
+jobs:
+  # Refuse to build a tag that isn't on a release branch (release or release/<version>), so a tag on a work-in-progress
+  # commit can't produce a release even if this file ever ends up on another branch.
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # full history, so we can ask which branches contain the tagged commit
+      - name: Tag must be on a release branch (release or release/<version>)
+        run: |
+          if git branch -r --contains "$GITHUB_SHA" | grep -Eq 'origin/release(/[^ ]+)?$'; then
+            echo "$GITHUB_REF_NAME is on a release branch — building."
+          else
+            echo "::error::$GITHUB_REF_NAME is not on a release branch. Tag a commit on release or release/<version>."
+            exit 1
+          fi
+
+  # One native build per OS: node-pty must be compiled/packaged on the OS it runs on.
+  build:
+    needs: verify
+    strategy:
+      fail-fast: false # one OS failing shouldn't cancel the others
+      matrix:
+        os: [macos-latest, windows-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci # on Linux this compiles node-pty from source
+
+      - run: npm run build # Vite renderer + esbuild main/preload → out/
+
+      # Packages for the runner's OS and uploads to a draft GitHub release named after the
+      # package.json version (which must match the tag).
+      - run: npx electron-builder --publish always
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CSC_IDENTITY_AUTO_DISCOVERY: false # no signing certificates yet: skip the keychain lookup
