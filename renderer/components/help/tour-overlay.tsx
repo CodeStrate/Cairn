@@ -21,8 +21,26 @@ interface Rect {
 
 const CARD_WIDTH = 340;
 const GAP = 12;
-const PAD = 6;
+const PAD = 8;
+/** Corner radius of the spotlight hole and its glow. */
+const RADIUS = 14;
 const EDGE = 16;
+
+/**
+ * The dim layer's shape: the whole window minus a rounded hole. `path()` takes SVG path
+ * syntax, so the hole gets arc corners (`polygon()` only does straight lines); `evenodd`
+ * turns the inner shape into a hole. Same command list every time, so it animates.
+ */
+function spotlightPath(rect: Rect): string {
+  const w = window.innerWidth;
+  const h = window.innerHeight;
+  const x = rect.left;
+  const y = rect.top;
+  const x2 = rect.left + rect.width;
+  const y2 = rect.top + rect.height;
+  const r = Math.min(RADIUS, rect.width / 2, rect.height / 2);
+  return `path(evenodd, "M0 0 H${w} V${h} H0 Z M${x + r} ${y} H${x2 - r} A${r} ${r} 0 0 1 ${x2} ${y + r} V${y2 - r} A${r} ${r} 0 0 1 ${x2 - r} ${y2} H${x + r} A${r} ${r} 0 0 1 ${x} ${y2 - r} V${y + r} A${r} ${r} 0 0 1 ${x + r} ${y} Z")`;
+}
 
 function measure(target: string | undefined): Rect | null {
   if (!target) return null;
@@ -114,34 +132,31 @@ export function TourOverlay({ steps, onClose, onViewChange }: TourOverlayProps) 
   const position = cardPosition(rect, cardHeight);
 
   return createPortal(
-    <div className="fixed inset-0 z-[9000]" role="dialog" aria-modal="true" aria-label="Wefty tour">
-      {/* dim and blur everything except the tour tips using a spotlight via clip path */}
+    <div className="fixed inset-0 z-9000" role="dialog" aria-modal="true" aria-label="Wefty tour">
+      {/* Dim and blur everything except the spotlight (a rounded hole cut with clip-path). */}
       <div
         className="absolute inset-0 bg-black/40 backdrop-blur-[5px] transition-[clip-path] duration-200
         motion-reduce:transition-none"
         style={
           rect
             ? {
-                clipPath: `polygon(evenodd,
-              0 0, 100% 0, 100% 100%, 0 100%, 0 0,
-              ${rect.left}px ${rect.top}px,
-              ${rect.left + rect.width}px ${rect.top}px,
-              ${rect.left + rect.width}px ${rect.top + rect.height}px,
-              ${rect.left}px ${rect.top + rect.height}px,
-              ${rect.left}px ${rect.top}px)`,
+                clipPath: spotlightPath(rect),
               }
             : undefined
         }
       />
       {rect ? (
         <div
-          className="pointer-events-none absolute rounded-xl transition-all duration-200 motion-reduce:transition-none"
+          className="pointer-events-none absolute transition-all duration-200 motion-reduce:transition-none"
           style={{
             top: rect.top,
             left: rect.left,
             width: rect.width,
             height: rect.height,
-            outline: "2px solid rgba(255, 255, 255, 0.7)",
+            borderRadius: RADIUS,
+            // A soft glow instead of a hard outline: a faint edge plus a wide, dim halo.
+            boxShadow:
+              "0 0 0 1.5px rgba(255, 255, 255, 0.45), 0 0 28px 6px rgba(255, 255, 255, 0.14)",
           }}
         />
       ) : null}

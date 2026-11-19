@@ -130,7 +130,7 @@ function TranscriptMessage({ entry }: { entry: TranscriptEntry }) {
 function TranscriptBody({ entry }: { entry: TranscriptEntry }) {
   if (entry.role === "system") {
     return (
-      <Text variant="small" color="tertiary" className="line-clamp-3 break-words text-center">
+      <Text variant="small" color="tertiary" className="line-clamp-3 wrap-break-word text-center">
         {entry.text}
       </Text>
     );
@@ -139,7 +139,7 @@ function TranscriptBody({ entry }: { entry: TranscriptEntry }) {
     return (
       <AIChat.Message.Root from="user">
         <AIChat.Message.Content className="min-w-0">
-          <Text className="block whitespace-pre-wrap break-words">{entry.text}</Text>
+          <Text className="block whitespace-pre-wrap wrap-break-word">{entry.text}</Text>
         </AIChat.Message.Content>
       </AIChat.Message.Root>
     );

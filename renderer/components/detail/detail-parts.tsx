@@ -18,16 +18,16 @@ import { ItemIcon } from "../item-visuals";
 
 /** Keeps agent-written Markdown compact inside the narrow inspector. */
 export const TRANSCRIPT_MARKDOWN =
-  "min-w-0 break-words [&_h1]:text-large-strong [&_h2]:text-large-strong [&_h3]:text-strong [&_h4]:text-strong [&_pre]:max-w-full [&_pre]:overflow-x-auto [&_table]:block [&_table]:max-w-full [&_table]:overflow-x-auto";
+  "min-w-0 wrap-break-word [&_h1]:text-large-strong [&_h2]:text-large-strong [&_h3]:text-strong [&_h4]:text-strong [&_pre]:max-w-full [&_pre]:overflow-x-auto [&_table]:block [&_table]:max-w-full [&_table]:overflow-x-auto";
 
 export const DOCUMENT_MARKDOWN =
-  "min-w-0 break-words [&_h1]:text-heading2 [&_h2]:text-large-strong [&_h3]:text-strong [&_h4]:text-strong [&_pre]:max-w-full [&_pre]:overflow-x-auto [&_table]:block [&_table]:max-w-full [&_table]:overflow-x-auto";
+  "min-w-0 wrap-break-word [&_h1]:text-heading2 [&_h2]:text-large-strong [&_h3]:text-strong [&_h4]:text-strong [&_pre]:max-w-full [&_pre]:overflow-x-auto [&_table]:block [&_table]:max-w-full [&_table]:overflow-x-auto";
 
 /** Full item title with its badges, shown once at the top of the inspector. */
 export function DetailTitle({ title, children }: { title: string; children?: ReactNode }) {
   return (
     <header className="flex flex-col gap-2">
-      <Text as="h2" variant="large-strong" className="line-clamp-4 text-pretty break-words">
+      <Text as="h2" variant="large-strong" className="line-clamp-4 text-pretty wrap-break-word">
         {title}
       </Text>
       {children ? <div className="flex flex-wrap items-center gap-1.5">{children}</div> : null}

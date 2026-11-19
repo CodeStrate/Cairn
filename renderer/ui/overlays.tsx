@@ -51,9 +51,9 @@ const MENU_ICONS: Record<string, LucideIcon> = {
 };
 
 const MENU_CONTENT =
-  "z-[1000] min-w-48 overflow-hidden rounded-lg bg-surface-popover p-1 text-regular text-primary shadow-popover backdrop-blur-xl";
+  "z-1000 min-w-48 overflow-hidden rounded-lg bg-surface-popover p-1 text-regular text-primary shadow-popover backdrop-blur-xl";
 const MENU_ITEM =
-  "relative flex cursor-default items-center gap-2 rounded-md px-2 py-1 outline-none select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-40 data-[highlighted]:bg-accent data-[highlighted]:text-accent-contrast [&_svg]:size-3.5 [&_svg]:shrink-0";
+  "relative flex cursor-default items-center gap-2 rounded-md px-2 py-1 outline-none select-none data-disabled:pointer-events-none data-disabled:opacity-40 data-highlighted:bg-accent data-highlighted:text-accent-contrast [&_svg]:size-3.5 [&_svg]:shrink-0";
 
 interface MenuItemExtras {
   icon?: string;
@@ -162,16 +162,16 @@ export function DropdownMenuSeparator() {
 // --- Dialogs ----------------------------------------------------------------
 
 const DIALOG_SIZES = {
-  small: "w-[380px]",
-  medium: "w-[480px]",
-  large: "w-[620px]",
-  xl: "w-[760px]",
-  "2xl": "w-[900px]",
+  small: "w-95",
+  medium: "w-120",
+  large: "w-155",
+  xl: "w-190",
+  "2xl": "w-225",
 } as const;
 
-const OVERLAY = "fixed inset-0 z-[900] bg-black/30 backdrop-blur-[2px]";
+const OVERLAY = "fixed inset-0 z-900 bg-black/30 backdrop-blur-[2px]";
 const PANEL =
-  "fixed top-1/2 left-1/2 z-[901] flex max-h-[85vh] max-w-[calc(100vw-32px)] -translate-x-1/2 -translate-y-1/2 flex-col gap-4 rounded-xl bg-window-bg p-5 shadow-popover outline-none";
+  "fixed top-1/2 left-1/2 z-901 flex max-h-[85vh] max-w-[calc(100vw-32px)] -translate-x-1/2 -translate-y-1/2 flex-col gap-4 rounded-xl bg-window-bg p-5 shadow-popover outline-none";
 
 interface ConfirmProps {
   /** Runs on confirm; the dialog closes when it resolves and stays open if it throws. */
@@ -237,7 +237,7 @@ export function Dialog({
               </RadixDialog.Title>
               {description ? (
                 <RadixDialog.Description asChild>
-                  <Text as="p" variant="small" color="secondary" className="break-words">
+                  <Text as="p" variant="small" color="secondary" className="wrap-break-word">
                     {description}
                   </Text>
                 </RadixDialog.Description>
@@ -293,12 +293,12 @@ export function AlertDialog({
         <RadixAlertDialog.Overlay className={OVERLAY} />
         <RadixAlertDialog.Content className={cn(PANEL, DIALOG_SIZES.small)}>
           <RadixAlertDialog.Title asChild>
-            <Text as="h2" variant="large-strong" className="break-words">
+            <Text as="h2" variant="large-strong" className="wrap-break-word">
               {title}
             </Text>
           </RadixAlertDialog.Title>
           <RadixAlertDialog.Description asChild>
-            <Text as="p" color="secondary" className="break-words">
+            <Text as="p" color="secondary" className="wrap-break-word">
               {description}
             </Text>
           </RadixAlertDialog.Description>
@@ -369,7 +369,7 @@ export function Toaster() {
     <Sonner
       position="bottom-right"
       theme={dark ? "dark" : "light"}
-      toastOptions={{ className: "!text-regular" }}
+      toastOptions={{ className: "text-regular!" }}
     />
   );
 }
@@ -412,7 +412,7 @@ export function ErrorBoundaryView({ error, reset }: { error: unknown; reset?: ()
   return (
     <div className="flex h-full flex-col items-center justify-center gap-3 p-8 text-center">
       <Text variant="large-strong">Something went wrong</Text>
-      <Text color="secondary" className="max-w-md break-words selectable">
+      <Text color="secondary" className="max-w-md wrap-break-word selectable">
         {message}
       </Text>
       <Button onClick={() => (reset ? reset() : window.location.reload())}>Try Again</Button>

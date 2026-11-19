@@ -182,7 +182,7 @@ export function TerminalDock() {
         ))}
         <div
           className={`pointer-events-none absolute inset-1 z-10 rounded-lg border-2 border-dashed border-accent ${
-            dropping ? "" : "hidden group-data-[drop-active=true]:block"
+            dropping ? "" : "hidden group-data-drop-active:block"
           }`}
         />
       </div>

@@ -107,7 +107,7 @@ function Resizer({
       aria-hidden
       className={cn(
         "absolute inset-y-0 z-20 w-1.5 cursor-col-resize touch-none",
-        side === "right" ? "-right-[3px]" : "-left-[3px]",
+        side === "right" ? "-right-0.75" : "-left-0.75",
       )}
       onPointerDown={handleDown}
       onPointerMove={handleMove}
@@ -223,8 +223,8 @@ export function SplitView({
         <div
           className={cn(
             "fixed top-3 z-40 [-webkit-app-region:no-drag]",
-            isMac() ? "left-20" : "left-4",
-            "[&_[data-variant]]:text-secondary",
+            isMac() ? "left-22" : "left-4",
+            "**:data-variant:text-secondary",
           )}
         >
           <SidebarToggle />
@@ -254,7 +254,7 @@ export function Sidebar({
           // the line of the toolbar, the pinned sidebar toggle, and (on macOS) the traffic
           // lights. The left side is left empty for the traffic lights and the toggle.
           "drag-region flex h-9 shrink-0 items-center justify-end gap-1 px-2",
-          "[&_[data-variant=default]]:bg-transparent [&_[data-variant=default]]:text-secondary [&_[data-variant=default]:hover]:bg-control",
+          "**:data-[variant=default]:bg-transparent [&_[data-variant=default]]:text-secondary [&_[data-variant=default]:hover]:bg-control",
         )}
       >
         {actions}
@@ -337,7 +337,7 @@ export function SidebarListItem({
       type="button"
       aria-current={selected ? "true" : undefined}
       className={cn(
-        "flex min-h-[30px] w-full min-w-0 items-center gap-2.5 rounded-lg px-2 py-1 text-left outline-none",
+        "flex min-h-7.5 w-full min-w-0 items-center gap-2.5 rounded-lg px-2 py-1 text-left outline-none",
         "hover:bg-control-subtle focus-visible:ring-2 focus-visible:ring-accent/50",
         selected && "bg-selection hover:bg-selection",
         "[&>svg]:size-4 [&>svg]:shrink-0 [&>svg]:text-secondary",
@@ -375,9 +375,9 @@ export function Toolbar({
       className={cn(
         "drag-region flex h-13 shrink-0 items-center gap-3 px-4",
         // Clear the traffic lights (macOS) and, with the sidebar hidden, the pinned toggle.
-        sidebarHidden && (isMac() ? "pl-[120px]" : "pl-14"),
+        sidebarHidden && (isMac() ? "pl-32" : "pl-14"),
         // Traffic lights end ~72px; leave a comfortable 20px gap before the title.
-        !sidebarHidden && leadingInset && isMac() && "pl-[92px]",
+        !sidebarHidden && leadingInset && isMac() && "pl-23",
         className,
       )}
       {...props}
@@ -392,7 +392,7 @@ export function ToolbarContent({ className, ...props }: ComponentProps<"div">) {
 export function ToolbarTitle({ className, ...props }: ComponentProps<"div">) {
   return (
     <div
-      className={cn("truncate text-[17px] leading-[22px] font-semibold text-primary", className)}
+      className={cn("truncate text-[17px] leading-5.5 font-semibold text-primary", className)}
       {...props}
     />
   );
@@ -696,7 +696,7 @@ function ListItem({
 function ListItemIcon({ className, ...props }: ComponentProps<"span">) {
   return (
     <span
-      className={cn("flex shrink-0 items-center text-secondary [&_svg]:size-[18px]", className)}
+      className={cn("flex shrink-0 items-center text-secondary [&_svg]:size-4.5", className)}
       {...props}
     />
   );

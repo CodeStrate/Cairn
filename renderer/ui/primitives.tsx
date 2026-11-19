@@ -12,9 +12,35 @@ import {
   RadioGroup as RadixRadioGroup,
   Switch as RadixSwitch,
 } from "radix-ui";
-import { twMerge } from "tailwind-merge";
+import { extendTailwindMerge } from "tailwind-merge";
 
 import { applyTheme } from "./themes";
+
+/**
+ * tailwind-merge only knows Tailwind's default font sizes; without this it reads our type
+ * scale (text-small, text-regular, …, from theme.css) as text *colours* and drops a real
+ * colour like text-accent-contrast when both appear. Keep in sync with the --text-* tokens.
+ */
+const twMerge = extendTailwindMerge({
+  extend: {
+    classGroups: {
+      "font-size": [
+        {
+          text: [
+            "mini",
+            "small",
+            "regular",
+            "strong",
+            "large",
+            "large-strong",
+            "heading1",
+            "heading2",
+          ],
+        },
+      ],
+    },
+  },
+});
 
 export function cn(...inputs: ClassValue[]): string {
   return twMerge(clsx(inputs));
@@ -61,8 +87,8 @@ const TEXT_VARIANTS = {
   "extra-large-strong": "text-[18px] leading-6 font-semibold",
   heading1: "text-heading1",
   heading2: "text-heading2",
-  mono: "font-mono text-[12.5px] leading-[18px]",
-  "mono-strong": "font-mono text-[12.5px] leading-[18px] font-semibold",
+  mono: "font-mono text-[12.5px] leading-4.5",
+  "mono-strong": "font-mono text-[12.5px] leading-4.5 font-semibold",
 } as const;
 
 const TEXT_COLORS = {
@@ -184,17 +210,14 @@ export function Button({
 const BADGE_COLORS = {
   primary: "bg-control text-primary",
   secondary: "bg-control text-secondary",
-  blue: "bg-[color-mix(in_srgb,var(--wf-tint-blue)_14%,transparent)] text-[var(--wf-tint-blue)]",
-  green: "bg-[color-mix(in_srgb,var(--wf-tint-green)_14%,transparent)] text-[var(--wf-tint-green)]",
-  yellow:
-    "bg-[color-mix(in_srgb,var(--wf-tint-yellow)_14%,transparent)] text-[var(--wf-tint-yellow)]",
-  orange:
-    "bg-[color-mix(in_srgb,var(--wf-tint-orange)_14%,transparent)] text-[var(--wf-tint-orange)]",
-  red: "bg-[color-mix(in_srgb,var(--wf-tint-red)_14%,transparent)] text-[var(--wf-tint-red)]",
-  purple:
-    "bg-[color-mix(in_srgb,var(--wf-tint-purple)_14%,transparent)] text-[var(--wf-tint-purple)]",
+  blue: "bg-[color-mix(in_srgb,var(--wf-tint-blue)_14%,transparent)] text-(--wf-tint-blue)",
+  green: "bg-[color-mix(in_srgb,var(--wf-tint-green)_14%,transparent)] text-(--wf-tint-green)",
+  yellow: "bg-[color-mix(in_srgb,var(--wf-tint-yellow)_14%,transparent)] text-(--wf-tint-yellow)",
+  orange: "bg-[color-mix(in_srgb,var(--wf-tint-orange)_14%,transparent)] text-(--wf-tint-orange)",
+  red: "bg-[color-mix(in_srgb,var(--wf-tint-red)_14%,transparent)] text-(--wf-tint-red)",
+  purple: "bg-[color-mix(in_srgb,var(--wf-tint-purple)_14%,transparent)] text-(--wf-tint-purple)",
   magenta:
-    "bg-[color-mix(in_srgb,var(--wf-tint-magenta)_14%,transparent)] text-[var(--wf-tint-magenta)]",
+    "bg-[color-mix(in_srgb,var(--wf-tint-magenta)_14%,transparent)] text-(--wf-tint-magenta)",
 } as const;
 
 export function Badge({
@@ -205,7 +228,7 @@ export function Badge({
   return (
     <span
       className={cn(
-        "inline-flex h-[22px] items-center rounded-full px-2.5 text-small font-medium whitespace-nowrap",
+        "inline-flex h-5.5 items-center rounded-full px-2.5 text-small font-medium whitespace-nowrap",
         BADGE_COLORS[color],
         className,
       )}
@@ -266,7 +289,7 @@ export function Switch({ className, ...props }: ComponentProps<typeof RadixSwitc
   return (
     <RadixSwitch.Root
       className={cn(
-        "relative inline-flex h-[18px] w-8 shrink-0 items-center rounded-full bg-control-hover transition-colors outline-none",
+        "relative inline-flex h-4.5 w-8 shrink-0 items-center rounded-full bg-control-hover transition-colors outline-none",
         "focus-visible:ring-2 focus-visible:ring-accent/50 disabled:opacity-40 data-[state=checked]:bg-accent",
         className,
       )}

@@ -123,7 +123,7 @@ export function GraphPane({
       ) : null}
 
       {items.length > 0 ? (
-        <div className="pointer-events-none absolute bottom-3 left-4 flex max-w-[70%] flex-wrap items-center gap-x-4 gap-y-1">
+        <div className="pointer-events-none absolute bottom-3 left-4 flex max-w-7/10 flex-wrap items-center gap-x-4 gap-y-1">
           {matches && matches.size === 0 ? (
             <Text variant="small" color="secondary">
               No matches for "{query.trim()}"
