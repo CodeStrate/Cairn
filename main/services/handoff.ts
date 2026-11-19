@@ -18,7 +18,6 @@ const HARNESS_NAMES: Record<string, string> = {
   codex: "Codex",
   cursor: "Cursor",
   opencode: "opencode",
-  aider: "Aider",
 };
 
 function clip(text: string, max: number): string {

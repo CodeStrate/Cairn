@@ -100,7 +100,6 @@ const PROJECT_FILES: ProjectFileRule[] = [
   { rel: ".claude/CLAUDE.md", harnesses: ["claude-code"], memoryType: "instructions" },
   { rel: "AGENTS.md", harnesses: ["codex", "opencode", "cursor"], memoryType: "instructions" },
   { rel: ".cursorrules", harnesses: ["cursor"], memoryType: "rules" },
-  { rel: "CONVENTIONS.md", harnesses: ["aider"], memoryType: "instructions" },
 ];
 
 const PROJECT_DIRS: ProjectFileRule[] = [

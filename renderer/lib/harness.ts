@@ -21,14 +21,13 @@ export interface HarnessStyle {
   color: string;
 }
 
-export const HARNESS_ORDER: HarnessId[] = ["claude-code", "codex", "cursor", "opencode", "aider"];
+export const HARNESS_ORDER: HarnessId[] = ["claude-code", "codex", "cursor", "opencode"];
 
 export const HARNESS_STYLES: Record<HarnessId, HarnessStyle> = {
   "claude-code": { name: "Claude Code", badge: "orange", color: "var(--wf-tint-orange)" },
   codex: { name: "Codex", badge: "blue", color: "var(--wf-tint-blue)" },
   cursor: { name: "Cursor", badge: "purple", color: "var(--wf-tint-purple)" },
   opencode: { name: "opencode", badge: "green", color: "var(--wf-tint-green)" },
-  aider: { name: "Aider", badge: "yellow", color: "var(--wf-tint-yellow)" },
 };
 
 export const SHARED_STYLE: HarnessStyle = {
