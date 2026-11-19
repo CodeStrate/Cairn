@@ -4,6 +4,7 @@
  */
 import { spawn } from "node:child_process";
 import { createRequire } from "node:module";
+import { fileURLToPath } from "node:url";
 import { context } from "esbuild";
 import { createServer } from "vite";
 
@@ -12,7 +13,7 @@ import { mainOptions, preloadOptions } from "./bundle.mjs";
 const electronPath = createRequire(import.meta.url)("electron");
 
 const server = await createServer({
-  configFile: new URL("../vite.config.ts", import.meta.url).pathname,
+  configFile: fileURLToPath(new URL("../vite.config.ts", import.meta.url)),
 });
 await server.listen();
 const url = server.resolvedUrls?.local[0] ?? "http://localhost:5173/";
