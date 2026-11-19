@@ -1,6 +1,6 @@
 /**
  * No-AI handoff: turns a session transcript into a short Markdown brief another agent (or
- * another harness) can pick up from. Glaze-free so the MCP server can reuse it.
+ * another harness) can pick up from.
  */
 import * as path from "path";
 

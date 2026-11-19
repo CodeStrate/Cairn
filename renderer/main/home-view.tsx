@@ -235,7 +235,7 @@ export function HomeView() {
       onDrop={(event) => void handleFileDrop(event)}
     >
       <SplitView
-        storageKey="cairn"
+        storageKey="wefty"
         className="h-full"
         sidebar={
           <div data-tour="sidebar" className="h-full">

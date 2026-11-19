@@ -181,7 +181,6 @@ npm run format
 
 - Logs go to stdout/stderr — run `npm run dev`, or launch a packaged app from a terminal (`/Applications/Wefty.app/Contents/MacOS/Wefty` on macOS).
 - App data (preferences, handoffs): `~/Library/Application Support/Wefty` (macOS), `%APPDATA%\Wefty` (Windows), `~/.config/Wefty` (Linux). Preferences from the earlier Glaze build are imported on first launch.
-- Architecture, data contract, IPC channels, and conventions: [docs/PROJECT.md](docs/PROJECT.md)
 
 ### Project layout
 

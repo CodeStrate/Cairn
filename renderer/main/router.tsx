@@ -31,7 +31,7 @@ const homeRoute = createRoute({
   component: HomeView,
   validateSearch: validateHomeSearch,
   staticData: {
-    title: "Cairn",
+    title: "Wefty",
   },
 });
 

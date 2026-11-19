@@ -8,8 +8,7 @@ import { resizeTerminal, writeTerminal } from "../../lib/terminal-api";
 import { attachTerminal } from "../../lib/terminal-bus";
 
 /**
- * xterm.js renders the PTY output. It's pure JavaScript (no WASM or eval), which Glaze's
- * WebView security policy requires; ghostty-web can come back in the Electron shell.
+ * xterm.js kept, with ghostty-web as a drop in later option.
  */
 interface TerminalViewProps {
   id: string;

@@ -1,5 +1,5 @@
 /**
- * Embedded terminal sessions: one PTY per tab. Glaze-free on purpose — the caller wires
+ * Embedded terminal sessions: one PTY per tab. The caller wires
  * output/exit events to IPC so this can be reused by an Electron shell or the MCP server.
  */
 import { randomUUID } from "crypto";
